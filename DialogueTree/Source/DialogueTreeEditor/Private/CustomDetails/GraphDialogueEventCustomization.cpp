@@ -101,7 +101,7 @@ void FGraphDialogueEventCustomization::CustomizeChildren(
 				FSimpleDelegate::CreateLambda(
 					[Utils]()
 					{
-						Utils->ForceRefresh();
+						Utils->RequestRefresh();
 					}
 				)
 			);
@@ -109,7 +109,7 @@ void FGraphDialogueEventCustomization::CustomizeChildren(
 				FSimpleDelegate::CreateLambda(
 					[Utils]()
 					{
-						Utils->ForceRefresh();
+						Utils->RequestRefresh();
 					}
 				)
 			);

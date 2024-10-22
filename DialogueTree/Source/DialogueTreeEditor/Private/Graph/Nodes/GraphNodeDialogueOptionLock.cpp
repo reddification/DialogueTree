@@ -9,6 +9,8 @@
 #include "Graph/DialogueEdGraph.h"
 #include "Graph/DialogueGraphCondition.h"
 #include "Nodes/DialogueOptionLockNode.h"
+//UE
+#include "UObject/UObjectGlobals.h"
 
 #define LOCTEXT_NAMESPACE "GraphNodeDialogueOptionLock"
 
@@ -85,7 +87,10 @@ void UGraphNodeDialogueOptionLock::FinalizeAssetNode()
     for (UDialogueGraphCondition* GraphCondition : Conditions)
     {
         GraphCondition->FinalizeCondition(TargetDialogue);
-        UDialogueCondition* Condition = GraphCondition->GetCondition();
+        UDialogueCondition* Condition = DuplicateObject<UDialogueCondition>(
+            GraphCondition->GetCondition(),
+            TargetDialogue
+        );
 
         if (Condition)
         {
@@ -116,6 +121,45 @@ bool UGraphNodeDialogueOptionLock::CanCompileNode()
 
     SetErrorFlag(false);
     return true;
+}
+
+void UGraphNodeDialogueOptionLock::LoadNodeData(UDialogueNode* InNode)
+{
+    Super::LoadNodeData(InNode);
+
+    UDialogueOptionLockNode* LockNode =
+        CastChecked<UDialogueOptionLockNode>(InNode);
+    
+    bIfAny = LockNode->GetIfAny();
+    LockedMessage = LockNode->GetLockedMessage();
+    UnlockedMessage = LockNode->GetUnlockedMessage();
+    //Todo: figure out how to grab conditions. Prob have to be done while
+    // linking?
+}
+
+void UGraphNodeDialogueOptionLock::RegenerateNodeConnections(UDialogueEdGraph* DialogueGraph)
+{
+    Super::RegenerateNodeConnections(DialogueGraph);
+
+    //Copy over conditions
+    //This is done here in case any of them need other graph nodes
+    UDialogueOptionLockNode* OptionLockNode = 
+        Cast<UDialogueOptionLockNode>(GetAssetNode());
+    if (!OptionLockNode) return;
+
+    Conditions.Empty();
+    for (UDialogueCondition* Condition : OptionLockNode->GetConditions())
+    {
+        UDialogueGraphCondition* NewGraphCondition =
+            NewObject<UDialogueGraphCondition>(this);
+        UDialogueCondition* NewCondition =
+            DuplicateObject<UDialogueCondition>(Condition, this);
+        NewGraphCondition->SetCondition(
+            NewCondition
+        );
+
+        Conditions.Add(NewGraphCondition);
+    }
 }
 
 bool UGraphNodeDialogueOptionLock::GetIfAny() const

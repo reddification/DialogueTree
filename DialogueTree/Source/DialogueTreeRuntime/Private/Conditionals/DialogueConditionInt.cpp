@@ -4,8 +4,18 @@
 #include "Conditionals/DialogueConditionInt.h"
 //Plugin
 #include "Conditionals/Queries/Base/DialogueQueryInt.h"
+//UE
+#include "UObject/UObjectGlobals.h"
 
 #define LOCTEXT_NAMESPACE "DialogueQueryInt"
+
+void UDialogueConditionInt::PostDuplicate(EDuplicateMode::Type DuplicateMode)
+{
+    Super::PostDuplicate(DuplicateMode);
+
+    if (!Query) return;
+    Query = DuplicateObject<UDialogueQueryInt>(Query, this);
+}
 
 bool UDialogueConditionInt::IsMet() const
 {
@@ -86,6 +96,11 @@ bool UDialogueConditionInt::IsValidCondition()
     }
 
     return false;
+}
+
+UDialogueQuery* UDialogueConditionInt::GetQuery() const
+{
+    return Query;
 }
 
 #undef LOCTEXT_NAMESPACE

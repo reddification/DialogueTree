@@ -35,6 +35,13 @@ public:
 	void SetEvents(TArray<UDialogueEventBase*>& InEvents);
 
 	/**
+	* Gets the node's events. 
+	* 
+	* @return const TArray<UDialogueEventBase*>&, the events. 
+	*/
+	const TArray<UDialogueEventBase*>& GetEvents() const;
+
+	/**
 	* Checks if there an ongoing event is blocking. 
 	* 
 	* @return bool - True if an event is blocking; False otherwise.

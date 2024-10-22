@@ -45,6 +45,36 @@ public:
 	*/
 	void ClearConditions();
 
+	/**
+	* Gets whether or not the branch as a whole is true if a single condition
+	* is true.
+	* 
+	* @return bool, true if any condition makes the whole branch true.
+	* False otherwise. 
+	*/
+	bool GetIfAny() const;
+
+	/**
+	* Retrieves the true condition node. 
+	* 
+	* @return UDialogueNode*, the true node. 
+	*/
+	UDialogueNode* GetTrueNode() const;
+
+	/**
+	* Retrieves the false condition node.
+	*
+	* @return UDialogueNode*, the false node.
+	*/
+	UDialogueNode* GetFalseNode() const;
+
+	/**
+	* Gets all conditions in the branch. 
+	* 
+	* @return const TArray<UDialogueCondition*>&, the conditions.
+	*/
+	const TArray<UDialogueCondition*>& GetConditions() const;
+
 private: 
 	/**
 	* Determines if the branch node passes its conditions to 
@@ -71,7 +101,7 @@ private:
 private:
 	/** Conditions which govern branching */
 	UPROPERTY()
-	TArray<TObjectPtr<UDialogueCondition>> Conditions;
+	TArray<UDialogueCondition*> Conditions;
  
 	/** If the branch should evaluate true if any condition does */
 	UPROPERTY()

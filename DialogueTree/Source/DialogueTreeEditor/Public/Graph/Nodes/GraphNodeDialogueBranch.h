@@ -44,6 +44,10 @@ public:
 	virtual void CreateAssetNode(class UDialogue* InAsset) override;
 	virtual void FinalizeAssetNode() override;
 	virtual bool CanCompileNode() override;
+	virtual void LoadNodeData(UDialogueNode* InNode) override;
+	virtual void RegenerateNodeConnections(
+		UDialogueEdGraph* DialogueGraph
+	) override;
 	/** End UGraphNodeDialogue */
 
 	/**

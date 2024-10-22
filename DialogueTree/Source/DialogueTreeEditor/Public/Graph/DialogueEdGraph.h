@@ -9,6 +9,7 @@
 #include "DialogueEdGraph.generated.h"
 
 class UDialogue;
+class UDialogueNode;
 class UDialogueSpeakerSocket;
 class UGraphNodeDialogue;
 class UGraphNodeDialogueBase;
@@ -126,6 +127,44 @@ public:
 	* otherwise. 
 	*/
 	bool CanCompileAsset() const;
+
+	/**
+	* Attempts to rebuild the graph from the given dialogue asset.
+	* 
+	* @param InAsset - UDialogue*, the dialogue we are interested in. 
+	* @return bool - True if succeeded. False otherwise. 
+	*/
+	bool TryBuildGraphFromAsset(const UDialogue* InAsset);
+
+	/**
+	* Adds all nodes from the asset into this graph. 
+	* 
+	* @param InAsset - UDialogue*, the dialogue we are interested in.
+	*/
+	void AddNodesFromAsset(const UDialogue* InAsset);
+
+	/**
+	* Regenerates the connections between nodes. 
+	*/
+	void RegenerateNodeLinks();
+
+	/**
+	* Generates a new graph node from the given asset node.
+	* 
+	* @param AssetNode - UDialogueNode*, the target asset node.
+	* @return UGraphNodeDialogue*, the generated graph node. 
+	*/
+	UGraphNodeDialogue* CreateGraphNodeFromAssetNode(
+		UDialogueNode* AssetNode
+	);
+
+	/**
+	* Retrieves the speaker socket with the given name, if any.
+	* 
+	* @param InName, FName, the speaker's name. 
+	* @return UDialogueSpeakerSocket*, the target socket.
+	*/
+	UDialogueSpeakerSocket* GetSpeakerSocketFromName(FName InName) const;
 
 	/**
 	* Refreshes the visual representations of all nodes in the graph. 

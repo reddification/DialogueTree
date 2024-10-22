@@ -96,3 +96,23 @@ bool UDialogueOptionLockNode::AllConditionsTrue() const
 
 	return true;
 }
+
+bool UDialogueOptionLockNode::GetIfAny() const
+{
+	return bIfAny;
+}
+
+FText UDialogueOptionLockNode::GetLockedMessage() const
+{
+	return LockedMessage;
+}
+
+FText UDialogueOptionLockNode::GetUnlockedMessage() const
+{
+	return UnlockedMessage;
+}
+
+const TArray<TObjectPtr<UDialogueCondition>>& UDialogueOptionLockNode::GetConditions() const
+{
+	return Conditions;
+}

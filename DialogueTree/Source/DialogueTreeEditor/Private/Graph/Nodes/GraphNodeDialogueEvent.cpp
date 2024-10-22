@@ -9,6 +9,9 @@
 #include "Events/ResetNodeVisits.h"
 #include "Graph/DialogueEdGraph.h"
 #include "Nodes/DialogueEventNode.h"
+#include "LogDialogueTree.h"
+//UE
+#include "UObject/UObjectGlobals.h"
 
 #define LOCTEXT_NAMESPACE "GraphNodeDialogueEvent"
 
@@ -96,16 +99,20 @@ void UGraphNodeDialogueEvent::FinalizeAssetNode()
 	{
 		if (Event.Event)
 		{
-			//Change outer 
-			Event.Event->Rename(nullptr, TargetDialogue);
+			//Duplicate the event
+			UDialogueEventBase* NewEvent = 
+				DuplicateObject<UDialogueEventBase>(
+					Event.Event,
+					TargetDialogue
+				);
 
-			Event.Event->SetDialogue(TargetDialogue);
-			FinalEvents.Add(Event.Event);
+			NewEvent->SetDialogue(TargetDialogue);
+			FinalEvents.Add(NewEvent);
 
 			//If the event is of the right type, handle the node socket 
-			if (Event.Event->IsA<UResetNodeVisits>())
+			if (NewEvent->IsA<UResetNodeVisits>())
 			{
-				FinalizeNodeSocket(Event.Event);
+				FinalizeNodeSocket(NewEvent);
 			}
 		}
 	}
@@ -132,6 +139,28 @@ bool UGraphNodeDialogueEvent::CanCompileNode()
 FName UGraphNodeDialogueEvent::GetBaseID() const
 {
 	return FName("Event");
+}
+
+void UGraphNodeDialogueEvent::RegenerateNodeConnections(
+	UDialogueEdGraph* DialogueGraph
+)
+{
+	Super::RegenerateNodeConnections(DialogueGraph);
+
+	//Copy over conditions
+	//This is done here in case any of them need other graph nodes
+	UDialogueEventNode* EventNode = Cast<UDialogueEventNode>(GetAssetNode());
+	if (!EventNode) return;
+
+	Events.Empty();
+	for (UDialogueEventBase* Event : EventNode->GetEvents())
+	{
+		FGraphDialogueEvent NewGraphEvent;
+		NewGraphEvent.Event = 
+			DuplicateObject<UDialogueEventBase>(Event, this);
+		OnRegenerateNodeSocket(NewGraphEvent.Event);
+		Events.Add(NewGraphEvent);
+	}
 }
 
 TArray<FText> UGraphNodeDialogueEvent::GetGraphDescriptions() const
@@ -165,21 +194,23 @@ int UGraphNodeDialogueEvent::GetNumEvents() const
 
 void UGraphNodeDialogueEvent::FinalizeNodeSocket(UDialogueEventBase* InEvent)
 {
-	if (!InEvent)
-	{
-		return;
-	}
+	if (!InEvent) return;
 
 	UResetNodeVisits* VisitsEvent = Cast<UResetNodeVisits>(InEvent);
 	
-	if (!VisitsEvent)
-	{
-		return;
-	}
+	if (!VisitsEvent) return;
 
 	UDialogueNodeSocket* TargetSocket = VisitsEvent->GetTargetSocket();
-	check(TargetSocket);
-	check(TargetSocket->GetGraphNode());
+	if (!TargetSocket) return;
+	if (!TargetSocket->GetGraphNode())
+	{
+		UE_LOG(
+			LogDialogueTree,
+			Warning,
+			TEXT("Attempting to compile dialogue event with missing node parameter")
+		);
+		return;
+	}
 
 	UGraphNodeDialogue* GraphNode = 
 		Cast<UGraphNodeDialogue>(TargetSocket->GetGraphNode());
@@ -187,6 +218,27 @@ void UGraphNodeDialogueEvent::FinalizeNodeSocket(UDialogueEventBase* InEvent)
 	check(GraphNode->GetAssetNode());
 
 	TargetSocket->SetDialogueNode(GraphNode->GetAssetNode());
+}
+
+void UGraphNodeDialogueEvent::OnRegenerateNodeSocket(
+	UDialogueEventBase* InEvent
+)
+{
+	if (!InEvent) return;
+	
+	UResetNodeVisits* VisitsEvent = Cast<UResetNodeVisits>(InEvent);
+	if (!VisitsEvent) return;
+
+	UDialogueEdGraph* Graph = GetDialogueGraph();
+	if (!Graph) return;
+
+	UDialogueNodeSocket* TargetSocket = VisitsEvent->GetTargetSocket();
+	if (!TargetSocket) return;
+
+	UDialogueNode* TargetNode = TargetSocket->GetDialogueNode();
+	if (!TargetNode) return;
+
+	TargetSocket->SetGraphNode(Graph->GetNode(TargetNode->GetNodeID()));
 }
 
 #undef LOCTEXT_NAMESPACE

@@ -58,6 +58,7 @@ public:
 	/** UGraphNodeDialogue Implementation */
 	virtual void CreateAssetNode(class UDialogue* InAsset) override;
 	virtual bool CanCompileNode() override;
+	virtual void LoadNodeData(UDialogueNode* InNode) override;
 	/** End UGraphNodeDialogue */
 
 public:

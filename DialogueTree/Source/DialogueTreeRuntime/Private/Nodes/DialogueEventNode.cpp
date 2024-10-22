@@ -39,6 +39,11 @@ void UDialogueEventNode::SetEvents(TArray<UDialogueEventBase*>& InEvents)
 	Events = InEvents;
 }
 
+const TArray<UDialogueEventBase*>& UDialogueEventNode::GetEvents() const
+{
+	return Events;
+}
+
 bool UDialogueEventNode::GetIsBlocking() const
 {
 	for (UDialogueEventBase* Event : Events)

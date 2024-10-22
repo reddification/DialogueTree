@@ -88,7 +88,7 @@ bool UGraphNodeDialogue::CanCompileNode()
 
 UDialogueEdGraph* UGraphNodeDialogue::GetDialogueGraph() const
 {
-	return DialogueGraph;
+	return GetTypedOuter<UDialogueEdGraph>();
 }
 
 void UGraphNodeDialogue::BindOnUpdateVisuals(FOnUpdateNode& UpdateDelegate)
@@ -154,6 +154,7 @@ void UGraphNodeDialogue::LinkToParent(UGraphNodeDialogue* InParent)
 void UGraphNodeDialogue::LinkToChild(UGraphNodeDialogue* InChild)
 {
 	UDialogueNode* ChildAssetNode = InChild->GetAssetNode();
+
 	if (AssetNode && InChild)
 	{
 		AssetNode->AddChild(ChildAssetNode);
@@ -202,6 +203,7 @@ void UGraphNodeDialogue::GetPinChildren(UEdGraphPin* InPin,
 
 void UGraphNodeDialogue::MarkDialogueDirty()
 {
+	UDialogueEdGraph* DialogueGraph = GetDialogueGraph();
 	if (!DialogueGraph)
 	{
 		return;
@@ -217,6 +219,52 @@ void UGraphNodeDialogue::UpdateDialogueNode()
 	OnUpdateVisuals.ExecuteIfBound();
 }
 
+void UGraphNodeDialogue::LoadNodeData(UDialogueNode* InNode)
+{
+	if (!InNode) return;
+
+	const FVector2D& GraphLocation = InNode->GetGraphLocation();
+	NodePosX = GraphLocation.X;
+	NodePosY = GraphLocation.Y;
+	ID = InNode->GetNodeID();
+	AssetNode = InNode;
+}
+
+void UGraphNodeDialogue::RegenerateNodeConnections(
+	UDialogueEdGraph* DialogueGraph
+)
+{
+	if (!AssetNode || !DialogueGraph)
+	{
+		return;
+	}
+
+	TArray<UEdGraphPin*> OutputPins = GetOutputPins();
+	checkf(
+		OutputPins.Num() == 1,
+		TEXT("Base impl. of 'RegenerateNodeConnections' should not be used with multiple output pins.")
+	);
+
+	TArray<UDialogueNode*> ChildNodes = AssetNode->GetChildren();
+	for (UDialogueNode* Node : ChildNodes)
+	{
+		UGraphNodeDialogue* OtherGraphNode = 
+			DialogueGraph->GetNode(Node->GetNodeID());
+		checkf(
+			OtherGraphNode, 
+			TEXT("Node in dialogue graph missing editor equivalent.")
+		);
+
+		TArray<UEdGraphPin*> InputPins = OtherGraphNode->GetInputPins();
+		checkf(
+			InputPins.Num() == 1,
+			TEXT("Failed to regenerate dialogue node links. Node has multiple input pins.")
+		);
+
+		GetSchema()->TryCreateConnection(OutputPins[0], InputPins[0]);
+	}
+}
+
 FName UGraphNodeDialogue::GetBaseID() const
 {
 	return FName("DialogueNode");
@@ -228,10 +276,16 @@ void UGraphNodeDialogue::AssignAssetNodeID() const
 	AssetNode->SetNodeID(ID);
 }
 
+void UGraphNodeDialogue::AssignAssetNodeCommonData() const
+{
+	check(AssetNode);
+	AssetNode->SetGraphLocation(FVector2D(NodePosX, NodePosY));
+}
+
 void UGraphNodeDialogue::InitNodeInDialogueGraph(UEdGraph* OwningGraph)
 {
-	check(OwningGraph);
-	DialogueGraph = CastChecked<UDialogueEdGraph>(OwningGraph);
+	UDialogueEdGraph* DialogueGraph = 
+		CastChecked<UDialogueEdGraph>(OwningGraph);
 	FText BaseIDText = LOCTEXT("BaseIDText", "{0} {1}");
 
 	//Set initial ID
@@ -259,6 +313,7 @@ void UGraphNodeDialogue::InitNodeInDialogueGraph(UEdGraph* OwningGraph)
 
 void UGraphNodeDialogue::ResetID()
 {
+	UDialogueEdGraph* DialogueGraph = GetDialogueGraph();
 	check(DialogueGraph);
 
 	DialogueGraph->RemoveFromNodeMap(ID);

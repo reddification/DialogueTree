@@ -52,6 +52,17 @@ void ADialogueController::StartDialogueWithNames(UDialogue* InDialogue,
 		return;
 	}
 
+	if (InDialogue->GetCompileStatus() != EDialogueCompileStatus::Compiled)
+	{
+		UE_LOG(
+			LogDialogueTree,
+			Error,
+			TEXT("Could not start dialogue [%s]. Dialogue not compiled."),
+			*InDialogue->GetName()
+		);
+		return;
+	}
+
 	if (!CanOpenDisplay())
 	{
 		UE_LOG(
@@ -145,6 +156,17 @@ void ADialogueController::StartDialogueWithNamesAt(UDialogue* InDialogue, FName 
 			LogDialogueTree,
 			Error,
 			TEXT("Could not start dialogue. Provided dialogue null.")
+		);
+		return;
+	}
+
+	if (InDialogue->GetCompileStatus() != EDialogueCompileStatus::Compiled)
+	{
+		UE_LOG(
+			LogDialogueTree,
+			Error,
+			TEXT("Could not start dialogue [%s]. Dialogue not compiled."),
+			*InDialogue->GetName()
 		);
 		return;
 	}

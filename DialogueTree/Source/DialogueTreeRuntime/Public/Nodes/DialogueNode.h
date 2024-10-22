@@ -105,6 +105,20 @@ public:
 	*/
 	void SetNodeID(FName InID);
 
+	/**
+	* Sets the node's graph location.
+	* 
+	* @param InLocation - FVector2D, the location in the graph.
+	*/
+	void SetGraphLocation(FVector2D InLocation);
+
+	/**
+	* Gets the node's graph location.
+	* 
+	* @return FVector2D, the location.
+	*/
+	FVector2D GetGraphLocation() const;
+
 protected:
 	/** The owning dialogue */
 	UPROPERTY()
@@ -121,4 +135,8 @@ protected:
 	/** Any direct child nodes in the dialogue */
 	UPROPERTY()
 	TArray<TObjectPtr<UDialogueNode>> Children;
+
+	/** The Location of the node in the graph */
+	UPROPERTY()
+	FVector2D GraphLocation;
 };

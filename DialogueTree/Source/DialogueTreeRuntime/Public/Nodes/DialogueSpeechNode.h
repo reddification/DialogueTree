@@ -63,6 +63,13 @@ public:
 	virtual void Skip() override;
 	/** End DialogueEventNode */
 
+	/**
+	* Gets the type of transition used by the speech. 
+	* 
+	* @return TSubclassOf<UDialogueTransition>, transition type.
+	*/
+	TSubclassOf<UDialogueTransition> GetTransitionType() const;
+
 protected:
 	/** DialogueEventNode Impl */
 	virtual void TransitionIfNotBlocking() const override;

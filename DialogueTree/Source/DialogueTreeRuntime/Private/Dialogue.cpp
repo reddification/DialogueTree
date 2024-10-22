@@ -285,16 +285,33 @@ UDialogueNode* UDialogue::GetRootNode() const
 	return RootNode;
 }
 
+bool UDialogue::HasExistingData() const
+{
+	return DialogueNodes.Num() > 1;
+}
+
+int32 UDialogue::GetNumNodes() const
+{
+	return DialogueNodes.Num();
+}
+
+const TArray<UDialogueNode*> UDialogue::GetAllNodes() const
+{
+	TArray<UDialogueNode*> AllNodes;
+
+	for (auto& Pair : DialogueNodes)
+	{
+		AllNodes.Add(Pair.Value.Get());
+	}
+
+	return AllNodes;
+}
+
 #if WITH_EDITOR
 
 UEdGraph* UDialogue::GetEdGraph() const
 {
-	return EdGraph.LoadSynchronous();
-}
-
-UEdGraph* UDialogue::GetEdGraphIfLoaded() const
-{
-	return EdGraph.Get();
+	return EdGraph;
 }
 
 void UDialogue::SetEdGraph(UEdGraph* InEdGraph)
@@ -309,7 +326,7 @@ const TMap<FName, FSpeakerField>& UDialogue::GetSpeakerRoles() const
 
 void UDialogue::AddNode(UDialogueNode* InNode)
 {
-	if (InNode)
+	if (InNode && !DialogueNodes.Contains(InNode->GetNodeID()))
 	{
 		DialogueNodes.Add(InNode->GetNodeID(), InNode);
 		InNode->SetDialogue(this);
@@ -329,6 +346,7 @@ void UDialogue::SetRootNode(UDialogueNode* InNode)
 	if (UDialogueEntryNode* EntryNode
 		= Cast<UDialogueEntryNode>(InNode))
 	{
+		AddNode(EntryNode);
 		RootNode = EntryNode;
 	}
 }

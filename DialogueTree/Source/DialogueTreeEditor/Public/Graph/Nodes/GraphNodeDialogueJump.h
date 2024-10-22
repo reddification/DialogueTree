@@ -38,6 +38,9 @@ public:
 	virtual void FinalizeAssetNode() override;
 	virtual bool CanCompileNode() override;
 	virtual FName GetBaseID() const override;
+	virtual void RegenerateNodeConnections(
+		UDialogueEdGraph* DialogueGraph
+	) override;
 	/** End UGraphNodeDialogue */
 	
 	/**

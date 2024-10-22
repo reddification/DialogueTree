@@ -140,6 +140,12 @@ public:
 	void AssignAssetNodeID() const;
 
 	/**
+	* Called after creating the asset node. Assigns common node data that 
+	* corresponds to the node. This includes location, etc. 
+	*/
+	void AssignAssetNodeCommonData() const;
+
+	/**
 	* Virtual. Performs last touches on the asset node after all asset nodes
 	* have been created and linked together. 
 	*/
@@ -194,6 +200,20 @@ public:
 	*/
 	virtual void UpdateDialogueNode();
 
+	/**
+	* Loads data from the given asset node. 
+	* 
+	* @param InNode - UDialogueNode*, the node we are loading from. 
+	*/
+	virtual void LoadNodeData(UDialogueNode* InNode);
+
+	/**
+	* Regenerates connections between this node and others in the graph. 
+	* 
+	* @param DialogueGraph - UDialogueEdGraph*, the owning graph. 
+	*/
+	virtual void RegenerateNodeConnections(UDialogueEdGraph* DialogueGraph);
+
 protected:
 	/**
 	* Virtual. Links the asset node to the given parent node.
@@ -240,10 +260,6 @@ private:
 	/** A flag indicating that the node has a compilation error */
 	UPROPERTY()
 	bool bDialogueError = false;
-
-	/** The dialogue graph this node exists within */
-	UPROPERTY()
-	TObjectPtr<UDialogueEdGraph> DialogueGraph;
 
 	/** The ID of the node within the graph */
 	UPROPERTY()

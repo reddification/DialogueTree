@@ -148,7 +148,7 @@ bool FDialogueEditor::OnRequestClose()
 void FDialogueEditor::AddReferencedObjects(FReferenceCollector& Collector)
 {
     check(TargetDialogue);
-    UEdGraph* TargetGraph = TargetDialogue->GetEdGraphIfLoaded();
+    UEdGraph* TargetGraph = TargetDialogue->GetEdGraph();
     check(TargetGraph);
 
     Collector.AddReferencedObject(TargetDialogue);
@@ -215,8 +215,8 @@ void FDialogueEditor::CreateEdGraph()
     {
         UE_LOG(
             LogDialogueTree,
-            Warning,
-            TEXT("No dialogue graph found. Creating a new graph. If this is the first time you open the dialogue asset you can ignore this message.")
+            Log,
+            TEXT("No dialogue graph present. Attempting to rebuild.")
         );
 
         //Create the ed graph
@@ -232,12 +232,24 @@ void FDialogueEditor::CreateEdGraph()
         TargetDialogue->SetEdGraph(NewGraph);
         TargetDialogue->GetEdGraph()->bAllowDeletion = false;
 
-        //Spawn initial nodes
-        const UEdGraphSchema* GraphSchema = NewGraph->GetSchema();
-        check(GraphSchema);
-        GraphSchema->CreateDefaultNodesForGraph(
-            *NewGraph
-        );
+        //Rebuild the graph from the asset
+        UDialogueEdGraph* DialogueGraph = 
+            CastChecked<UDialogueEdGraph>(NewGraph);
+        if (!DialogueGraph->TryBuildGraphFromAsset(TargetDialogue))
+        {
+            UE_LOG(
+                LogDialogueTree,
+                Log,
+                TEXT("No dialogue data found. Creating a new graph.")
+            );
+
+            //Graph failed to build, spawn initial nodes
+            const UEdGraphSchema* GraphSchema = NewGraph->GetSchema();
+            check(GraphSchema);
+            GraphSchema->CreateDefaultNodesForGraph(
+                *NewGraph
+            );
+        }
     }
 }
 

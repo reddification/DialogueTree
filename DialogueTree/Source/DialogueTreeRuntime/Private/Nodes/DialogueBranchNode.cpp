@@ -68,6 +68,26 @@ void UDialogueBranchNode::ClearConditions()
     Conditions.Empty();
 }
 
+bool UDialogueBranchNode::GetIfAny() const
+{
+    return bIfAny;
+}
+
+UDialogueNode* UDialogueBranchNode::GetTrueNode() const
+{
+    return TrueNode;
+}
+
+UDialogueNode* UDialogueBranchNode::GetFalseNode() const
+{
+    return FalseNode;
+}
+
+const TArray<UDialogueCondition*>& UDialogueBranchNode::GetConditions() const
+{
+    return Conditions;
+}
+
 bool UDialogueBranchNode::PassesConditions() const
 {
     if (bIfAny)

@@ -277,6 +277,29 @@ public:
 	*/
 	UDialogueNode* GetRootNode() const;
 
+	/**
+	* Checks if the dialogue has existing node data or not. Used to determine
+	* if the graph should be rebuilt from existing data or set up from
+	* scratch. 
+	* 
+	* @return bool - True if there are existing nodes. False otherwise. 
+	*/
+	bool HasExistingData() const;
+
+	/**
+	* Gets the number of nodes in the dialogue. 
+	* 
+	* @return int32 - the number of nodes. 
+	*/
+	int32 GetNumNodes() const;
+
+	/**
+	* Retrieves all nodes in the dialogue.
+	* 
+	* @return TArray<UDialogueNode*>, the nodes. 
+	*/
+	const TArray<UDialogueNode*> GetAllNodes() const;
+
 #if WITH_EDITOR
 public:
 	/**
@@ -285,15 +308,6 @@ public:
 	* @return UEdGraph*, the editor graph for the dialogue. 
 	*/
 	UEdGraph* GetEdGraph() const;
-
-	/**
-	* Retrieve the editor graph associated with this dialogue if loaded. If 
-	* unloaded will simply return nullptr. Used when dealing with garbage 
-	* collector.
-	*
-	* @return UEdGraph*, the editor graph for the dialogue if loaded.
-	*/
-	UEdGraph* GetEdGraphIfLoaded() const;
 
 	/**
 	* Set the editor graph associated with this dialogue. 
@@ -439,7 +453,7 @@ private:
 
 	/** The editor graph associated with this dialogue */
 	UPROPERTY()
-	TSoftObjectPtr<UEdGraph> EdGraph = nullptr;
+	UEdGraph* EdGraph = nullptr;
 
 #endif
 

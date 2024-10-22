@@ -14,6 +14,16 @@ void UDialogueCondition::SetQuery(UDialogueQuery* InQuery)
     );
 }
 
+UDialogueQuery* UDialogueCondition::GetQuery() const
+{
+    UE_LOG(
+        LogDialogueTree,
+        Error,
+        TEXT("Should not use abstract condition directly")
+    );
+    return nullptr;
+}
+
 void UDialogueCondition::SetDialogue(UDialogue* InDialogue)
 {
     UE_LOG(

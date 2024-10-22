@@ -26,6 +26,10 @@ struct FSpeechDetails
 	UPROPERTY(BlueprintReadOnly, Category = "Dialogue")
 	FName SpeakerName = NAME_None;
 
+	/** The base title for the speech (foundation of its ID) */
+	UPROPERTY(BlueprintReadOnly, Category = "Dialogue")
+	FName SpeechTitle = NAME_None; 
+
 	/** The audio associated with the speech */
 	UPROPERTY(BlueprintReadOnly, Category = "Dialogue")
 	TObjectPtr<USoundBase> SpeechAudio = nullptr;

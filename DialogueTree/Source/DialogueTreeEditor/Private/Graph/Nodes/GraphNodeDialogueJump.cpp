@@ -7,6 +7,7 @@
 #include "DialogueNodeSocket.h"
 #include "Graph/DialogueEdGraph.h"
 #include "Nodes/DialogueJumpNode.h"
+#include "LogDialogueTree.h"
 
 #define LOCTEXT_NAMESPACE "GraphNodeDialogueJump"
 
@@ -53,8 +54,17 @@ void UGraphNodeDialogueJump::FinalizeAssetNode()
         CastChecked<UDialogueJumpNode>(GetAssetNode());
     UGraphNodeDialogue* TargetGraphNode = GetJumpTarget();
 
-    check(TargetGraphNode);
-    check(TargetGraphNode->GetAssetNode());
+    if (!TargetGraphNode)
+    {
+        UE_LOG(
+            LogDialogueTree,
+            Warning,
+            TEXT("Attempting to compile jump node with no target node set")
+        );
+        return;
+    }
+    if (!TargetGraphNode->GetAssetNode()) return;
+
     TargetAssetNode->SetJumpTarget(TargetGraphNode->GetAssetNode());
 }
 
@@ -80,6 +90,25 @@ bool UGraphNodeDialogueJump::CanCompileNode()
 FName UGraphNodeDialogueJump::GetBaseID() const
 {
     return "Jump";
+}
+
+void UGraphNodeDialogueJump::RegenerateNodeConnections(
+    UDialogueEdGraph* DialogueGraph
+)
+{
+    Super::RegenerateNodeConnections(DialogueGraph);
+
+    if (!DialogueGraph) return;
+    
+    UDialogueJumpNode* JumpNode = Cast<UDialogueJumpNode>(GetAssetNode());
+    if (!JumpNode) return;
+    if (!JumpNode->GetJumpTarget()) return;
+
+    JumpTarget = NewObject<UDialogueNodeSocket>(this);
+    JumpTarget->SetDialogueNode(JumpNode->GetJumpTarget());
+    JumpTarget->SetGraphNode(
+        DialogueGraph->GetNode(JumpNode->GetJumpTarget()->GetNodeID())
+    );
 }
 
 UGraphNodeDialogue* UGraphNodeDialogueJump::GetJumpTarget()

@@ -28,6 +28,13 @@ public:
 	virtual void SetQuery(UDialogueQuery* InQuery);
 
 	/**
+	* Gets the query associated with this condition.
+	* 
+	* @return UDialogueQuery*, the query. 
+	*/
+	virtual UDialogueQuery* GetQuery() const;
+
+	/**
 	* Sets the dialogue for the condition and its query.
 	*
 	* @param InDialogue - UDialogue*, the owning dialogue.

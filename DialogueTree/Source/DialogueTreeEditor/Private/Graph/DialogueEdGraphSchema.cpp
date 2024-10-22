@@ -765,6 +765,9 @@ UGraphNodeDialogueReroute* UDialogueEdGraphSchema::GetRerouteNode(
 	//Setup pins 
 	NewReroute->AllocateDefaultPins();
 
+	//Add reroute node to the list of nodes in the graph
+	NewReroute->InitNodeInDialogueGraph(InParentGraph);
+
 	return NewReroute;
 }
 

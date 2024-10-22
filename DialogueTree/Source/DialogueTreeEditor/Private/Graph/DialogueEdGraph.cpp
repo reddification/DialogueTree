@@ -4,11 +4,27 @@
 #include "Graph/DialogueEdGraph.h"
 //UE
 #include "GraphEditAction.h"
+#include "Settings/EditorStyleSettings.h"
 //Plugin
 #include "Dialogue.h"
 #include "DialogueSpeakerSocket.h"
 #include "Graph/Nodes/GraphNodeDialogue.h"
+#include "Graph/Nodes/GraphNodeDialogueBranch.h"
+#include "Graph/Nodes/GraphNodeDialogueEntry.h"
+#include "Graph/Nodes/GraphNodeDialogueEntry.h"
+#include "Graph/Nodes/GraphNodeDialogueEvent.h"
+#include "Graph/Nodes/GraphNodeDialogueJump.h"
+#include "Graph/Nodes/GraphNodeDialogueOptionLock.h"
+#include "Graph/Nodes/GraphNodeDialogueReroute.h"
+#include "Graph/Nodes/GraphNodeDialogueSpeech.h"
 #include "Nodes/DialogueNode.h"
+#include "Nodes/DialogueBranchNode.h"
+#include "Nodes/DialogueEntryNode.h"
+#include "Nodes/DialogueEventNode.h"
+#include "Nodes/DialogueJumpNode.h"
+#include "Nodes/DialogueOptionLockNode.h"
+#include "Nodes/DialogueRerouteNode.h"
+#include "Nodes/DialogueSpeechNode.h"
 
 UDialogueEdGraph::UDialogueEdGraph()
 {
@@ -142,25 +158,23 @@ void UDialogueEdGraph::CompileAsset()
 	//Clear asset nodes
 	ClearAssetNodes();
 
-	//Ensure we can compile the asset 
-	if (!CanCompileAsset())
-	{
-		Asset->SetCompileStatus(EDialogueCompileStatus::Failed);
-		return;
-	}
-
-	//Set up speakers and root
-	Root->CreateAssetNode(Asset);
-	Asset->SetRootNode(Root->GetAssetNode());
-
 	//Compile asset tree
 	CreateAssetNodes(Asset);
+	Asset->SetRootNode(Root->GetAssetNode());
+
 	TSet<UGraphNodeDialogue*> VisitedNodes;
 	UpdateAssetTreeRecursive(Root, VisitedNodes);
 	FinalizeAssetNodes();
 
-	//Mark compilation as successful 
-	Asset->SetCompileStatus(EDialogueCompileStatus::Compiled);
+	//Determine if compilation was successful
+	if (CanCompileAsset())
+	{
+		Asset->SetCompileStatus(EDialogueCompileStatus::Compiled);
+	}
+	else
+	{
+		Asset->SetCompileStatus(EDialogueCompileStatus::Failed);
+	}
 }
 
 bool UDialogueEdGraph::CanCompileAsset() const
@@ -180,6 +194,137 @@ bool UDialogueEdGraph::CanCompileAsset() const
 	}
 
 	return bCanCompile;
+}
+
+bool UDialogueEdGraph::TryBuildGraphFromAsset(const UDialogue* InAsset)
+{
+	//If the asset is blank, we cannot create one
+	if (!InAsset || !InAsset->HasExistingData())
+	{
+		return false;
+	}
+
+	//If this graph is already generated, we are done
+	if (!Nodes.IsEmpty() && InAsset->GetEdGraph() == this)
+	{
+		return true;
+	}
+
+	AddNodesFromAsset(InAsset);
+	
+	UGraphNodeDialogueEntry* EntryNode = CastChecked<UGraphNodeDialogueEntry>(
+		GetNode(InAsset->GetRootNode()->GetNodeID())
+	);
+	SetGraphRoot(EntryNode);
+
+	RegenerateNodeLinks();
+
+	return true; 
+}
+
+void UDialogueEdGraph::AddNodesFromAsset(const UDialogue* InAsset)
+{
+	check(InAsset);
+
+	Nodes.Empty();
+	NodeMap.Empty();
+
+	const TArray<UDialogueNode*> AssetNodes = InAsset->GetAllNodes();
+
+	for (UDialogueNode* AssetNode : AssetNodes)
+	{
+		UGraphNodeDialogue* NewNode = CreateGraphNodeFromAssetNode(AssetNode);
+		AddNode(NewNode);
+		AddToNodeMap(NewNode);
+	}
+}
+
+void UDialogueEdGraph::RegenerateNodeLinks()
+{
+	for (auto& Pair : NodeMap)
+	{
+		UGraphNodeDialogue* Node = Pair.Value.Get();
+		Node->RegenerateNodeConnections(this);
+	}
+}
+
+UGraphNodeDialogue* UDialogueEdGraph::CreateGraphNodeFromAssetNode(
+	UDialogueNode* AssetNode
+)
+{
+	if (!AssetNode)
+	{
+		return nullptr;
+	}
+
+	/**
+	* Todo: Speed is relevant so this will work for now. Eventually I want to 
+	* move this into a dedicated factory, both for clarity's sake and to 
+	* decouple the graph from its individual nodes. 
+	*/
+	UGraphNodeDialogue* NewNode = nullptr;
+	if (UDialogueSpeechNode* SpeechNode 
+		= Cast<UDialogueSpeechNode>(AssetNode))
+	{
+		NewNode = NewObject<UGraphNodeDialogueSpeech>(this);
+	}
+
+	if (UDialogueBranchNode* BranchNode
+		= Cast<UDialogueBranchNode>(AssetNode))
+	{
+		NewNode = NewObject<UGraphNodeDialogueBranch>(this);
+	}
+
+	if (UDialogueEventNode* EventNode
+		= Cast<UDialogueEventNode>(AssetNode))
+	{
+		NewNode = NewObject<UGraphNodeDialogueEvent>(this);
+	}
+
+	if (UDialogueEntryNode* EntryNode
+		= Cast<UDialogueEntryNode>(AssetNode))
+	{
+		NewNode = NewObject<UGraphNodeDialogueEntry>(this);
+	}
+
+	if (UDialogueJumpNode* JumpNode =
+		Cast <UDialogueJumpNode>(AssetNode))
+	{
+		NewNode = NewObject<UGraphNodeDialogueJump>(this);
+	}
+
+	if (UDialogueOptionLockNode* OptionLockNode =
+		Cast<UDialogueOptionLockNode>(AssetNode))
+	{
+		NewNode = NewObject<UGraphNodeDialogueOptionLock>(this);
+	}
+
+	if (UDialogueRerouteNode* RerouteNode =
+		Cast<UDialogueRerouteNode>(AssetNode))
+	{
+		NewNode = NewObject<UGraphNodeDialogueReroute>(this);
+	}
+	NewNode->CreateNewGuid();
+	NewNode->AllocateDefaultPins();
+	NewNode->LoadNodeData(AssetNode);
+	NewNode->SnapToGrid(GetDefault<UEditorStyleSettings>()->GridSnapSize);
+
+	return NewNode;
+}
+
+UDialogueSpeakerSocket* UDialogueEdGraph::GetSpeakerSocketFromName(
+	FName InName
+) const
+{
+	const TMap<FName, FSpeakerField>& SpeakerRoles =
+		GetDialogue()->GetSpeakerRoles();
+	if (SpeakerRoles.Contains(InName))
+	{
+		const FSpeakerField& TargetSpeaker = SpeakerRoles[InName];
+		return TargetSpeaker.SpeakerSocket;
+	}
+
+	return nullptr;
 }
 
 void UDialogueEdGraph::UpdateAllNodeVisuals()
@@ -209,6 +354,7 @@ void UDialogueEdGraph::CreateAssetNodes(UDialogue* InAsset)
 		check(Entry.Value);
 		Entry.Value->CreateAssetNode(InAsset);
 		Entry.Value->AssignAssetNodeID();
+		Entry.Value->AssignAssetNodeCommonData();
 		InAsset->AddNode(Entry.Value->GetAssetNode());
 	}
 }

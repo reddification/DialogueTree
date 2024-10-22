@@ -60,6 +60,13 @@ public:
 	*/
 	bool ShouldRefreshCondition();
 
+	/**
+	* Manually sets the condition and query. 
+	* 
+	* @param InCondition - UDialogueCondition*, the condition.
+	*/
+	void SetCondition(UDialogueCondition* InCondition);
+
 	/** UObject Impl. */
 	virtual void PostEditChangeProperty(
 		struct FPropertyChangedEvent& PropertyChangedEvent);
@@ -73,6 +80,13 @@ private:
 	* @param InQuery - UNodeVisitedQuery*, the target query. 
 	*/
 	void HandleNodeVisitedQuery(UNodeVisitedQuery* InQuery);
+
+	/**
+	* Handles a node visited query when regenerating the graph. 
+	* 
+	* @param InQuery - UNodeVisitedQuery*, the target query. 
+	*/
+	void RegenerateNodeVisitedQuery(UNodeVisitedQuery* InQuery);
 
 public:
 	/** The query for the condition */

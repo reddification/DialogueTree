@@ -28,3 +28,8 @@ void UDialogueJumpNode::SetJumpTarget(UDialogueNode* InTarget)
 	check(InTarget);
 	JumpTarget = InTarget;
 }
+
+UDialogueNode* UDialogueJumpNode::GetJumpTarget() const
+{
+	return JumpTarget;
+}

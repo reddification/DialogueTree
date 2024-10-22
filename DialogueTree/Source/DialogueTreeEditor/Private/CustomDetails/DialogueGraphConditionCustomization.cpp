@@ -344,12 +344,6 @@ void FDialogueGraphConditionCustomization::CreateChildPropertyRows(TSharedRef<IP
 
 void FDialogueGraphConditionCustomization::RefreshEditor()
 {
-	//Refresh the details view
-	if (Utils.IsValid())
-	{
-		Utils->ForceRefresh();
-	}
-
 	//Refresh the owning condition 
 	if (TargetGraphCondition.IsValid()
 		&& TargetGraphCondition->ShouldRefreshCondition())
@@ -361,6 +355,12 @@ void FDialogueGraphConditionCustomization::RefreshEditor()
 	if (TargetGraphNode.IsValid())
 	{
 		TargetGraphNode->UpdateDialogueNode();
+	}
+
+	//Refresh the details view
+	if (Utils.IsValid())
+	{
+		Utils->RequestRefresh();
 	}
 }
 

@@ -45,7 +45,6 @@ void UGraphNodeDialogueEntry::CreateAssetNode(UDialogue* InAsset)
 		NewObject<UDialogueEntryNode>(InAsset);
 
 	SetAssetNode(NewNode);
-	InAsset->SetRootNode(NewNode);
 }
 
 FName UGraphNodeDialogueEntry::GetBaseID() const

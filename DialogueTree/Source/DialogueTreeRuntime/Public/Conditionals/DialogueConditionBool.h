@@ -20,6 +20,10 @@ class DIALOGUETREERUNTIME_API UDialogueConditionBool : public UDialogueCondition
 	GENERATED_BODY()
 
 public:
+	/** UObject Impl. */
+	virtual void PostDuplicate(EDuplicateMode::Type DuplicateMode) override;
+	/***/
+
 	/** UDialogueCondition Impl. */
 	virtual bool IsMet() const override;
 	virtual void SetQuery(UDialogueQuery* InQuery) override;
@@ -28,6 +32,7 @@ public:
 		const FText QueryText) const override;
 	virtual FText GetGraphDescription(FText QueryText) override;
 	virtual bool IsValidCondition() override;
+	virtual UDialogueQuery* GetQuery() const override;
 	/** End UDialogueCondition */
 
 private: 

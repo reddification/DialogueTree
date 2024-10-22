@@ -11,7 +11,9 @@
 #include "Conditionals/Queries/NodeVisitedQuery.h"
 #include "Dialogue.h"
 #include "DialogueNodeSocket.h"
+#include "Graph/DialogueEdGraph.h"
 #include "Graph/Nodes/GraphNodeDialogue.h"
+#include "LogDialogueTree.h"
 
 void UDialogueGraphCondition::PostDuplicate(bool bDuplicateForPIE)
 {
@@ -57,13 +59,11 @@ void UDialogueGraphCondition::RefreshCondition()
 
 void UDialogueGraphCondition::FinalizeCondition(UDialogue* InOuter)
 {
-    check(Query);
-    check(Condition);
-    check(InOuter);
+    if (!Query) return;
+    if (!Condition) return;
+    if (!InOuter) return;
 
     //Change outer and set up
-    Query->Rename(nullptr, InOuter);
-    Condition->Rename(nullptr, InOuter);
     Condition->SetDialogue(InOuter);
 
     //If a node visited query, update the node socket
@@ -122,6 +122,19 @@ bool UDialogueGraphCondition::ShouldRefreshCondition()
     return false;
 }
 
+void UDialogueGraphCondition::SetCondition(UDialogueCondition* InCondition)
+{
+    Condition = InCondition;
+    Query = InCondition->GetQuery();
+
+    //If graph data is needed, update that 
+    if (!Query) return;
+    if (UNodeVisitedQuery* NodeVisitedQuery = Cast<UNodeVisitedQuery>(Query))
+    {
+        RegenerateNodeVisitedQuery(NodeVisitedQuery);
+    }
+}
+
 void UDialogueGraphCondition::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
     if (ShouldRefreshCondition())
@@ -132,11 +145,19 @@ void UDialogueGraphCondition::PostEditChangeProperty(FPropertyChangedEvent& Prop
 
 void UDialogueGraphCondition::HandleNodeVisitedQuery(UNodeVisitedQuery* InQuery)
 {
-    check(InQuery);
+    if (!InQuery) return;
     UDialogueNodeSocket* TargetSocket = InQuery->GetSocket();
 
-    check(TargetSocket);
-    check(TargetSocket->GetGraphNode());
+    if (!TargetSocket) return;
+    if (!TargetSocket->GetGraphNode())
+    {
+        UE_LOG(
+            LogDialogueTree,
+            Warning,
+            TEXT("Attempting to compile node visited query without setting target node")
+        );
+        return;
+    };
 
     UGraphNodeDialogue* TargetGraphNode =
         Cast<UGraphNodeDialogue>(TargetSocket->GetGraphNode());
@@ -148,4 +169,21 @@ void UDialogueGraphCondition::HandleNodeVisitedQuery(UNodeVisitedQuery* InQuery)
     check(TargetDialogueNode);
 
     TargetSocket->SetDialogueNode(TargetDialogueNode);
+}
+
+void UDialogueGraphCondition::RegenerateNodeVisitedQuery(
+    UNodeVisitedQuery* InQuery
+)
+{
+    if (!InQuery || !InQuery->GetSocket()) return;
+
+    UDialogueEdGraph* Graph = GetTypedOuter<UDialogueEdGraph>();
+    if (!Graph) return;
+    
+    UDialogueNode* TargetNode = InQuery->GetSocket()->GetDialogueNode();
+    if (!TargetNode) return;
+
+    InQuery->GetSocket()->SetGraphNode(
+        Graph->GetNode(TargetNode->GetNodeID())
+    );
 }

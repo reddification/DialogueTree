@@ -31,6 +31,13 @@ public:
 	*/
 	void SetJumpTarget(UDialogueNode* InTarget);
 
+	/**
+	* Gets the target of the node's jump. 
+	* 
+	* @return UDialogueNode*, the target. 
+	*/
+	UDialogueNode* GetJumpTarget() const;
+
 private:
 	/** The target node to "jump" to */
 	UPROPERTY()

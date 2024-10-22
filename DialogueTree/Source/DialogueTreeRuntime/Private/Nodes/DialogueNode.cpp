@@ -55,3 +55,13 @@ void UDialogueNode::SetNodeID(FName InID)
 {
     NodeID = InID;
 }
+
+void UDialogueNode::SetGraphLocation(FVector2D InLocation)
+{
+    GraphLocation = InLocation;
+}
+
+FVector2D UDialogueNode::GetGraphLocation() const
+{
+    return GraphLocation;
+}

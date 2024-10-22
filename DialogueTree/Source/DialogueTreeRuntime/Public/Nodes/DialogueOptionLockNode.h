@@ -37,6 +37,35 @@ public:
 		TArray<UDialogueCondition*>& InConditions, 
 		const FText& LockedText, const FText& UnlockedText);
 
+	/**
+	* Get the if any value of the node.
+	*
+	* @return bool, true if any condition can be true for the node as a whole
+	* to be true.
+	*/
+	bool GetIfAny() const;
+
+	/**
+	* Get the message to use when the node is locked.
+	*
+	* @return FText, the locked message.
+	*/
+	FText GetLockedMessage() const;
+
+	/**
+	* Get the message to use when the node is unlocked.
+	*
+	* @return FText, the unlocked message.
+	*/
+	FText GetUnlockedMessage() const;
+
+	/**
+	* Get the conditions that are part of this lock node.
+	*
+	* @return TArray<TObjectPtr<UDialogueCondition>>&, the conditions.
+	*/
+	const TArray<TObjectPtr<UDialogueCondition>>& GetConditions() const;
+
 private:
 	/**
 	* Determines if the branch node passes its conditions to

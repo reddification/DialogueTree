@@ -118,6 +118,7 @@ void UGraphNodeDialogueSpeech::CreateAssetNode(UDialogue* InAsset)
     
     //Init data 
     FSpeechDetails SpeechDetails;
+    SpeechDetails.SpeechTitle = SpeechTitle;
     SpeechDetails.SpeakerName = Speaker.Speaker->GetSpeakerName();
     SpeechDetails.bIgnoreContent = bIgnoreContent;
     SpeechDetails.SpeechText = SpeechText;
@@ -152,6 +153,27 @@ bool UGraphNodeDialogueSpeech::CanCompileNode()
 
     SetErrorFlag(true);
     return false;
+}
+
+void UGraphNodeDialogueSpeech::LoadNodeData(UDialogueNode* InNode)
+{
+    Super::LoadNodeData(InNode);
+
+    UDialogueSpeechNode* SpeechNode = 
+        CastChecked<UDialogueSpeechNode>(InNode);
+    const FSpeechDetails& SpeechDetails = SpeechNode->GetDetails();
+    
+    Speaker.Speaker = GetDialogueGraph()->GetSpeakerSocketFromName(
+        SpeechDetails.SpeakerName
+    );
+    TransitionType = SpeechNode->GetTransitionType();
+    SpeechTitle = SpeechDetails.SpeechTitle;
+    bCanSkip = SpeechDetails.bCanSkip;
+    bIgnoreContent = SpeechDetails.bIgnoreContent;
+    GameplayTags = SpeechDetails.GameplayTags;
+    MinimumPlayTime = SpeechDetails.MinimumPlayTime;
+    SpeechAudio = SpeechDetails.SpeechAudio;
+    SpeechText = SpeechDetails.SpeechText;
 }
 
 UClass* UGraphNodeDialogueSpeech::GetTransitionType() const

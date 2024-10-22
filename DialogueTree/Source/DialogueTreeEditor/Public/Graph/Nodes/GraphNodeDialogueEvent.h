@@ -52,6 +52,9 @@ public:
 	virtual void FinalizeAssetNode() override;
 	virtual bool CanCompileNode() override;
 	virtual FName GetBaseID() const override;
+	virtual void RegenerateNodeConnections(
+		UDialogueEdGraph* DialogueGraph
+	) override;
 	/** End UGraphNodeDialogue */
 
 	/**
@@ -70,6 +73,7 @@ public:
 
 private:
 	void FinalizeNodeSocket(UDialogueEventBase* InEvent);
+	void OnRegenerateNodeSocket(UDialogueEventBase* InEvent);
 
 private:
 	/** The list of user-defined events to play */

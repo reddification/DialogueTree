@@ -4,8 +4,18 @@
 #include "Conditionals/DialogueConditionFloat.h"
 //Plugin
 #include "Conditionals/Queries/Base/DialogueQueryFloat.h"
+//UE
+#include "UObject/UObjectGlobals.h"
 
 #define LOCTEXT_NAMESPACE "DialogueQueryFloat"
+
+void UDialogueConditionFloat::PostDuplicate(EDuplicateMode::Type DuplicateMode)
+{
+	Super::PostDuplicate(DuplicateMode);
+
+	if (!Query) return;
+	Query = DuplicateObject<UDialogueQueryFloat>(Query, this);
+}
 
 bool UDialogueConditionFloat::IsMet() const
 {
@@ -79,6 +89,11 @@ bool UDialogueConditionFloat::IsValidCondition()
 	}
 
 	return false;
+}
+
+UDialogueQuery* UDialogueConditionFloat::GetQuery() const
+{
+	return Query;
 }
 
 #undef LOCTEXT_NAMESPACE

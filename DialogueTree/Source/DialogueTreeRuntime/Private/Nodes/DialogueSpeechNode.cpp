@@ -89,6 +89,11 @@ void UDialogueSpeechNode::Skip()
 	}
 }
 
+TSubclassOf<UDialogueTransition> UDialogueSpeechNode::GetTransitionType() const
+{
+	return Transition->GetClass();
+}
+
 void UDialogueSpeechNode::TransitionIfNotBlocking() const
 {
 	Transition->CheckTransitionConditions();

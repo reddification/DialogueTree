@@ -14,7 +14,7 @@ void UDialogueEntryNode::EnterNode()
 	Super::EnterNode();
 
 	//If no children, end dialogue and throw error
-	if (Children.Num() < 1 || Children[0] == nullptr)
+	if (Children.Num() != 1 || Children[0] == nullptr)
 	{
 		UE_LOG(
 			LogDialogueTree, 

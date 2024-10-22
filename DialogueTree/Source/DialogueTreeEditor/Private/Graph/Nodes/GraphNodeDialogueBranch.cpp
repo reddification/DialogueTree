@@ -10,6 +10,8 @@
 #include "Graph/DialogueGraphCondition.h"
 #include "Graph/Nodes/GraphNodeDialogue.h"
 #include "Nodes/DialogueBranchNode.h"
+//UE
+#include "UObject/UObjectGlobals.h"
 
 #define LOCTEXT_NAMESPACE "GraphNodeDialogueBranch"
 
@@ -108,7 +110,10 @@ void UGraphNodeDialogueBranch::FinalizeAssetNode()
     for (UDialogueGraphCondition* GraphCondition : Conditions)
     {
         GraphCondition->FinalizeCondition(TargetDialogue);
-        UDialogueCondition* Condition = GraphCondition->GetCondition();
+        UDialogueCondition* Condition = DuplicateObject<UDialogueCondition>(
+            GraphCondition->GetCondition(),
+            TargetDialogue
+        );
 
         if (Condition)
         {
@@ -135,6 +140,93 @@ bool UGraphNodeDialogueBranch::CanCompileNode()
 
     SetErrorFlag(false);
     return true;
+}
+
+void UGraphNodeDialogueBranch::LoadNodeData(UDialogueNode* InNode)
+{
+    Super::LoadNodeData(InNode);
+
+    UDialogueBranchNode* BranchNode = 
+        CastChecked<UDialogueBranchNode>(InNode);
+
+    bIfAny = BranchNode->GetIfAny();
+}
+
+void UGraphNodeDialogueBranch::RegenerateNodeConnections(
+    UDialogueEdGraph* DialogueGraph
+)
+{
+    if (!DialogueGraph)
+    {
+        return;
+    }
+
+    UDialogueBranchNode* BranchNode = 
+        Cast<UDialogueBranchNode>(GetAssetNode());
+    if (!BranchNode)
+    {
+        return;
+    }
+
+    TArray<UEdGraphPin*> OutputPins = GetOutputPins();
+    checkf(
+        OutputPins.Num() == 2,
+        TEXT("Can't regen node links. Branch node does not have two output pins")
+    );
+
+    if (UDialogueNode* TrueNode = BranchNode->GetTrueNode())
+    {
+        UGraphNodeDialogue* TrueGraphNode =
+            DialogueGraph->GetNode(TrueNode->GetNodeID());
+        checkf(
+            TrueGraphNode,
+            TEXT("Node in dialogue graph missing editor equivalent.")
+        );
+
+        TArray<UEdGraphPin*> InputPins = TrueGraphNode->GetInputPins();
+        checkf(
+            InputPins.Num() == 1,
+            TEXT("Failed to regenerate dialogue node links. Node has multiple input pins.")
+        );
+
+        //Link the true node to the "if" pin (first output pin)
+        GetSchema()->TryCreateConnection(OutputPins[0], InputPins[0]);
+    }
+
+    if (UDialogueNode* FalseNode = BranchNode->GetFalseNode())
+    {
+        UGraphNodeDialogue* FalseGraphNode =
+            DialogueGraph->GetNode(FalseNode->GetNodeID());
+        checkf(
+            FalseGraphNode,
+            TEXT("Node in dialogue graph missing editor equivalent.")
+        );
+
+        TArray<UEdGraphPin*> InputPins = FalseGraphNode->GetInputPins();
+        checkf(
+            InputPins.Num() == 1,
+            TEXT("Failed to regenerate dialogue node links. Node has multiple input pins.")
+        );
+
+        //Link the true node to the "else" pin (second output pin)
+        GetSchema()->TryCreateConnection(OutputPins[1], InputPins[0]);
+    }
+
+    //Copy over conditions
+    //This is done here in case any of them need other graph nodes
+    Conditions.Empty();
+    for (UDialogueCondition* Condition : BranchNode->GetConditions())
+    {
+        UDialogueGraphCondition* NewGraphCondition = 
+            NewObject<UDialogueGraphCondition>(this);
+        UDialogueCondition* NewCondition = 
+            DuplicateObject<UDialogueCondition>(Condition, this);
+        NewGraphCondition->SetCondition(
+            NewCondition
+        );
+
+        Conditions.Add(NewGraphCondition);
+    }
 }
 
 bool UGraphNodeDialogueBranch::GetIfAny() const
