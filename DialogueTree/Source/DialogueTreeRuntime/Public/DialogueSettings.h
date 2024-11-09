@@ -86,8 +86,7 @@ private:
 public:
 	/** The type of dialogue controller to use for managing dialogue */
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category="General")
-	TSoftClassPtr<ADialogueController> DialogueControllerType = 
-		LoadClass<ADialogueController>(nullptr, *DefaultControllerCoords);
+	TSoftClassPtr<ADialogueController> DialogueControllerType = LoadClass<ADialogueController>(nullptr, *DefaultControllerCoords);
 
 	/** The default minimum play time for a speech in dialogue. Can be 
 	* overridden on individual speeches. */
@@ -98,36 +97,29 @@ public:
 	* The type of dialogue widget used to represent dialogue when using the 
 	* default controller. Defaults to W_BasicDialogueDisplay if none. 
 	*/
-	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, 
-		Category = "DefaultController", 
-		meta = (MustImplement = "/DialogueTree/DisplayWidgets/BI_SimpleDialogueDisplay.BI_SimpleDialogueDisplay_C"))
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "DefaultController")
 	TSoftClassPtr<UUserWidget> DialogueWidgetType;
 
 	/** 
 	* The type of dialogue option widget to be used in the default dialogue 
 	* controller. Defaults to W_BasicDialogueOption.
 	*/
-	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly,
-		Category = "DefaultController",
-		meta = (MustImplement = "/DialogueTree/DisplayWidgets/BI_SimpleDialogueDisplay.BI_SimpleDialogueOption_C"))
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "DefaultController")
 	TSoftClassPtr<UUserWidget> DialogueOptionWidgetType;
 
 	/** The ZOrder of the widget in the player viewport when using the default 
 	* controller. Should be set above most other widgets, as some widgets can 
 	* consume UI input, even when collapsed. */
-	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, 
-		Category = "DefaultController")
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "DefaultController")
 	int32 WidgetZOrder = 10000;
 
 	/** The input mode settings to revert to when exiting dialogue
 	* (when using the default controller) */
-	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly,
-		Category = "DefaultController")
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "DefaultController")
 	FDLGInputModeSettings DefaultInputMode;
 
 	/** Whether normal game input is permitted while navigating dialogue 
 	* (when using the default controller) */
-	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly,
-		Category = "DefaultController")
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "DefaultController")
 	bool AllowGameInputInDialogue = true;
 };

@@ -9,6 +9,7 @@
 #include "DialogueController.h"
 #include "DialogueSettings.h"
 #include "LogDialogueTree.h"
+#include "Interfaces/DialogueTreeGameMode.h"
 
 void UDialogueManagerSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -49,9 +50,12 @@ void UDialogueManagerSubsystem::OnWorldBeginPlay(UWorld& InWorld)
 
 	//Attempt to load controller type
 	if (DLGSettings)
+		ControllerType = DLGSettings->DialogueControllerType.LoadSynchronous();
+
+	if (!ControllerType)
 	{
-		ControllerType = 
-			DLGSettings->DialogueControllerType.LoadSynchronous();
+		if (auto GameMode = Cast<IDialogueTreeGameMode>(InWorld.GetAuthGameMode()))
+			ControllerType = GameMode->GetDialogueControllerClass();
 	}
 
 	//Attempt to spawn controller

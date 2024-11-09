@@ -34,7 +34,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
 * it into a single parameter value for easier access. 
 */
 USTRUCT(BlueprintType)
-struct FSpeakerActorEntry
+struct DIALOGUETREERUNTIME_API FSpeakerActorEntry
 {
 	GENERATED_BODY()
 
@@ -51,8 +51,7 @@ struct FSpeakerActorEntry
 * A component representing a "speaker" or participant in a dialogue.
 * Serves as a liason between the dialogue and the game world.
 */
-UCLASS( Abstract, Blueprintable, ClassGroup=(Custom), 
-	meta=(BlueprintSpawnableComponent) )
+UCLASS(Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class DIALOGUETREERUNTIME_API UDialogueSpeakerComponent : 
 	public UAudioComponent
 {
@@ -131,7 +130,7 @@ public:
 	* applicable. Does nothing if the speaker is not engaged in dialogue.
 	*/
 	UFUNCTION(BlueprintCallable, Category="Dialogue")
-	void EndCurrentDialogue();
+	virtual void EndCurrentDialogue();
 
 	/**
 	* Attempts to skip the current speech that is playing. Does nothing
@@ -189,8 +188,7 @@ public:
 	* resume node (if any). If false, the dialogue will start over.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Dialogue")
-	void StartOwnedDialogue(TArray<UDialogueSpeakerComponent*> InSpeakers, 
-		bool bResume = false);
+	virtual void StartOwnedDialogue(TArray<UDialogueSpeakerComponent*> InSpeakers, bool bResume = false);
 
 	/**
 	* Starts the given dialogue. Uses the provided name-speaker pairings for

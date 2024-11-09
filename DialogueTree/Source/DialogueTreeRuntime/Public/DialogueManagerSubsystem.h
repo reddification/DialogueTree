@@ -54,5 +54,6 @@ private:
 	const FString DefaultControllerTypeName = "BP_BasicDialogueController_C";
 
 	/** The active dialogue controller */
-	TObjectPtr<ADialogueController> DialogueController;
+	UPROPERTY()
+	ADialogueController* DialogueController;
 };

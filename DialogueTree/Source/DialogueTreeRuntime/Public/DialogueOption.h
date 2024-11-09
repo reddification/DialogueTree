@@ -15,7 +15,7 @@ class UDialogueNode;
 * Struct used for representing a selectable dialogue option. 
 */
 USTRUCT()
-struct FDialogueOption
+struct DIALOGUETREERUNTIME_API FDialogueOption
 {
 	GENERATED_BODY()
 

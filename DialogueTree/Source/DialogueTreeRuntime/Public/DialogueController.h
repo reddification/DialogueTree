@@ -23,7 +23,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
 */
 
 USTRUCT(BlueprintType)
-struct FDialogueNodeVisits
+struct DIALOGUETREERUNTIME_API FDialogueNodeVisits
 {
 	GENERATED_BODY()
 
@@ -42,7 +42,7 @@ struct FDialogueNodeVisits
 * Used for saving and loading.
 */
 USTRUCT(BlueprintType)
-struct FDialogueRecords
+struct DIALOGUETREERUNTIME_API FDialogueRecords
 {
 	GENERATED_BODY()
 
@@ -56,7 +56,7 @@ struct FDialogueRecords
 * dialogue behavior: user input, dialogue widgets (or other display
 * schemes), and the dialogue itself.
 */
-UCLASS(Abstract, notplaceable, BlueprintType, Blueprintable)
+UCLASS(BlueprintType, Blueprintable, Placeable)
 class DIALOGUETREERUNTIME_API ADialogueController : public AActor
 {
 	GENERATED_BODY()
@@ -256,16 +256,14 @@ public:
 	* Opens the user-defined dialogue display.
 	* BlueprintImplementable.
 	*/
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable,
-		Category = "Dialogue")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Dialogue")
 	void OpenDisplay();
 
 	/**
 	* Closes the user-defined dialogue display.
 	* BlueprintImplementable.
 	*/
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable,
-		Category = "Dialogue")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Dialogue")
 	void CloseDisplay();
 
 	/**
@@ -277,9 +275,8 @@ public:
 	* @param InSpeaker - UDialogueSpeakerComponent*, speaker
 	* component associated with the target speech.
 	*/
-	UFUNCTION(BlueprintImplementableEvent)
-	void DisplaySpeech(FSpeechDetails InSpeechDetails,
-		UDialogueSpeakerComponent* InSpeaker);
+	UFUNCTION(BlueprintNativeEvent)
+	void DisplaySpeech(FSpeechDetails InSpeechDetails, UDialogueSpeakerComponent* InSpeaker);
 
 	/**
 	* Displays a set of options for the user to select from
@@ -288,14 +285,14 @@ public:
 	* @param InOptions - const TArray<FSpeechDetails>&, the speech
 	* details to display as options.
 	*/
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintNativeEvent)
 	void DisplayOptions(const TArray<FSpeechDetails>& InOptions);
 
 	/**
 	* Checks if we can open the user-defined dialogue display.
 	* BlueprintImplementable.
 	*/
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintNativeEvent)
 	bool CanOpenDisplay() const;
 
 	/**
@@ -305,7 +302,7 @@ public:
 	* @param MissingName, const FName&, the name of the missing
 	* speaker component.
 	*/
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintNativeEvent)
 	void HandleMissingSpeaker(const FName& MissingName);
 
 protected:

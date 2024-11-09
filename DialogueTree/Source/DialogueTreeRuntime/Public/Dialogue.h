@@ -145,6 +145,8 @@ public:
 	*/
 	void AddSpeakerEntry(FName InName);
 
+	virtual UWorld* GetWorld() const override;
+	
 	/**
 	* Opens the dialogue at the given node ID. 
 	* 

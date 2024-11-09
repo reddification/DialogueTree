@@ -14,7 +14,7 @@
 * speech. 
 */
 USTRUCT(BlueprintType)
-struct FSpeechDetails
+struct DIALOGUETREERUNTIME_API FSpeechDetails
 {
 	GENERATED_BODY()
 
@@ -37,7 +37,7 @@ struct FSpeechDetails
 	/** The minimum time for the speech to play before transitioning (unless
 	* skipped) */
 	UPROPERTY(BlueprintReadOnly, Category = "Dialogue")
-	float MinimumPlayTime = 0.f;
+	float MinimumPlayTime = 3.f;
 
 	/** Any behavior flags associated with the speech as gameplay tags */
 	UPROPERTY(BlueprintReadOnly, Category = "Dialogue")
@@ -60,4 +60,8 @@ struct FSpeechDetails
 	* For example, can provide an optional reason for being locked. */
 	UPROPERTY(BlueprintReadOnly, Category = "Dialogue")
 	FText OptionMessage = FText();
+
+	/** Gesture to play for character */
+	UPROPERTY(BlueprintReadOnly, Category = "Dialogue")
+	FGameplayTag GestureTag;
 };

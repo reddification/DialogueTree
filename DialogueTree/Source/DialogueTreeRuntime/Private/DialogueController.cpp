@@ -458,3 +458,29 @@ void ADialogueController::SetResumeNode(UDialogue* InDialogue, FName InNodeID)
 	//Set the record's resume node 
 	DialogueRecords.Records[RecordName].ResumeNodeID = InNodeID;
 }
+
+void ADialogueController::OpenDisplay_Implementation()
+{
+}
+
+void ADialogueController::CloseDisplay_Implementation()
+{
+}
+
+void ADialogueController::DisplaySpeech_Implementation(FSpeechDetails InSpeechDetails,
+	UDialogueSpeakerComponent* InSpeaker)
+{
+}
+
+void ADialogueController::DisplayOptions_Implementation(const TArray<FSpeechDetails>& InOptions)
+{
+}
+
+bool ADialogueController::CanOpenDisplay_Implementation() const
+{
+	return true;
+}
+
+void ADialogueController::HandleMissingSpeaker_Implementation(const FName& MissingName)
+{
+}

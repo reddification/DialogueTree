@@ -135,7 +135,7 @@ private:
 	/** The minimum time for the speech to play before transitioning (unless
 	* skipped) */
 	UPROPERTY(EditAnywhere, Category = "SpeechContent")
-	float MinimumPlayTime = 0.f;
+	float MinimumPlayTime = 3.f;
 
 	/** Whether the speech's content can be skipped or must be listened to */
 	UPROPERTY(EditAnywhere, Category = "SpeechContent")

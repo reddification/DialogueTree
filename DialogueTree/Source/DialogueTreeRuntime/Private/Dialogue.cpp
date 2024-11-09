@@ -71,6 +71,11 @@ void UDialogue::AddSpeakerEntry(FName InName)
 	}
 }
 
+UWorld* UDialogue::GetWorld() const
+{
+	return IsValid(DialogueController) ? DialogueController->GetWorld() : nullptr;
+}
+
 void UDialogue::OpenDialogueAt(FName InNodeID, ADialogueController* InController, TMap<FName, UDialogueSpeakerComponent*> InSpeakers)
 {
 	//Make sure we can start the dialogue 

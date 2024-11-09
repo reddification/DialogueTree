@@ -6,6 +6,7 @@
 #include "Dialogue.h"
 #include "DialogueSpeakerComponent.h"
 #include "LogDialogueTree.h"
+#include "Interfaces/DialogueCharacter.h"
 #include "Transitions/DialogueTransition.h"
 
 void UDialogueSpeechNode::InitSpeechData(FSpeechDetails& InDetails,
@@ -76,6 +77,14 @@ void UDialogueSpeechNode::EnterNode()
 		return; 
 	}
 
+	// G2VS2 start
+	if (Details.GestureTag.IsValid())
+	{
+		auto DialogueCharacter = Cast<IDialogueCharacter>(GetSpeaker()->GetOwner());
+		DialogueCharacter->StartDialogueGesture(Details.GestureTag);
+	}
+	// G2VS2 end
+	
 	//Play the transition 
 	Transition->StartTransition();
 }
@@ -86,6 +95,15 @@ void UDialogueSpeechNode::Skip()
 	{
 		Super::Skip();
 		Transition->Skip();
+		// G2VS2
+		// 08.11.2024 @AK: the UDialogueSpeechNode now has events on skip, so now we just gotta do the UDialogueEvent_SkipGesture
+		// to remove redundant intervention into plugins source
+		if (Details.GestureTag.IsValid())
+		{
+			auto DialogueCharacter = Cast<IDialogueCharacter>(GetSpeaker()->GetOwner());
+			DialogueCharacter->StopDialogueGesture();
+		}
+		// G2VS2
 	}
 }
 
