@@ -1,0 +1,8 @@
+{
+	"BuildId": "33043543",
+	"Modules": 
+	{
+		"DialogueTreeEditor": "UnrealEditor-DialogueTreeEditor-Win64-DebugGame.dll",
+		"DialogueTreeRuntime": "UnrealEditor-DialogueTreeRuntime-Win64-DebugGame.dll"
+	}
+}

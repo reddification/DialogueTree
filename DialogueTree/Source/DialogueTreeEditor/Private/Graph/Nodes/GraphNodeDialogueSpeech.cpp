@@ -126,7 +126,9 @@ void UGraphNodeDialogueSpeech::CreateAssetNode(UDialogue* InAsset)
     SpeechDetails.MinimumPlayTime = MinimumPlayTime;
     SpeechDetails.bCanSkip = bCanSkip;
     SpeechDetails.GameplayTags = GameplayTags;
-
+    SpeechDetails.GestureChance = GesturePlayChance;
+    SpeechDetails.GestureTag = GestureToPlay;
+    
     NewNode->InitSpeechData(SpeechDetails, TransitionType);
 }
 

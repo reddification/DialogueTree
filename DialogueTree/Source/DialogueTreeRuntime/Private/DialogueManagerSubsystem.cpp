@@ -9,6 +9,7 @@
 #include "DialogueController.h"
 #include "DialogueSettings.h"
 #include "LogDialogueTree.h"
+#include "GameFramework/GameModeBase.h"
 #include "Interfaces/DialogueTreeGameMode.h"
 
 void UDialogueManagerSubsystem::Initialize(FSubsystemCollectionBase& Collection)

@@ -64,4 +64,7 @@ struct DIALOGUETREERUNTIME_API FSpeechDetails
 	/** Gesture to play for character */
 	UPROPERTY(BlueprintReadOnly, Category = "Dialogue")
 	FGameplayTag GestureTag;
+	
+	UPROPERTY(BlueprintReadOnly, Category = "Dialogue")
+	float GestureChance = 0.8f;
 };

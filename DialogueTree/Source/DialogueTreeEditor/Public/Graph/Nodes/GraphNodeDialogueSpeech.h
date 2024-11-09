@@ -145,6 +145,12 @@ private:
 	UPROPERTY(EditAnywhere, Category = "BehaviorFlags")
 	FGameplayTagContainer GameplayTags;
 
+	UPROPERTY(EditAnywhere, meta=(UIMin = 0.f, ClampMin = 0.f, UIMax = 1.f, ClampMax = 1.f), Category = "Gesture")
+	float GesturePlayChance = 0.8f;
+	
+	UPROPERTY(EditAnywhere, meta=(EditCondition="GesturePlayChance > 0.f"), Category = "Gesture")
+	FGameplayTag GestureToPlay;
+
 	/** The strategy used to transition out of the speech/continue dialogue */
 	UPROPERTY(EditAnywhere, NoClear, Category = "Transition")
 	TSubclassOf<UDialogueTransition> TransitionType;

@@ -28,10 +28,5 @@ UDialogueSpeakerComponent* UDialogueSpeakerSocket::GetSpeakerComponent(
 
 bool UDialogueSpeakerSocket::IsValidSocket() const
 {
-	if (SpeakerName.IsNone())
-	{
-		return false;
-	}
-
-	return true;
+	return !SpeakerName.IsNone();
 }

@@ -80,8 +80,9 @@ void UDialogueSpeechNode::EnterNode()
 	// G2VS2 start
 	if (Details.GestureTag.IsValid())
 	{
-		auto DialogueCharacter = Cast<IDialogueCharacter>(GetSpeaker()->GetOwner());
-		DialogueCharacter->StartDialogueGesture(Details.GestureTag);
+		if (FMath::RandRange(0.f, 1.f) < Details.GestureChance)
+			if (auto DialogueCharacter = Cast<IDialogueCharacter>(GetSpeaker()->GetOwner()))
+				DialogueCharacter->StartDialogueGesture(Details.GestureTag);
 	}
 	// G2VS2 end
 	

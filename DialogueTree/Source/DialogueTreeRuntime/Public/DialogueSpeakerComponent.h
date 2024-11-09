@@ -217,8 +217,7 @@ public:
 	* resume node (if any). If false, the dialogue will start over.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Dialogue")
-	void StartDialogue(UDialogue* InDialogue, 
-		TArray<UDialogueSpeakerComponent*> InSpeakers, bool bResume = false);
+	virtual void StartDialogue(UDialogue* InDialogue, TArray<UDialogueSpeakerComponent*> InSpeakers, bool bResume = false);
 
 	/**
 	* Starts the default dialogue for this speaker component at the given 

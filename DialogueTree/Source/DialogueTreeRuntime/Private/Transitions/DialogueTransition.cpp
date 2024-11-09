@@ -99,6 +99,10 @@ void UDialogueTransition::Skip()
 
 	if (!bMinPlayTimeElapsed)
 	{
+		auto World = OwningNode->GetSpeaker()->GetWorld();
+		if (ensure(World))
+			GetWorld()->GetTimerManager().ClearTimer(MinPlayTimeHandle);
+		
 		OnMinPlayTimeElapsed();
 	}
 

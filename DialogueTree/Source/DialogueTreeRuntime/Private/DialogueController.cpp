@@ -90,8 +90,16 @@ void ADialogueController::StartDialogueWithNames(UDialogue* InDialogue,
 
 	//Start the dialogue 
 	OpenDisplay();
-	CurrentDialogue->OpenDialogueAt(StartNodeID, this, InSpeakers);
+
+	// Commented block for G2VS2
+	
+	// CurrentDialogue->OpenDialogueAt(StartNodeID, this, InSpeakers);
+	// OnDialogueStarted.Broadcast();
+
+	// G2VS2 Begin: changed order of invocations for camera angles logic
 	OnDialogueStarted.Broadcast();
+	CurrentDialogue->OpenDialogueAt(StartNodeID, this, InSpeakers);
+	// G2VS2 End
 }
 
 void ADialogueController::StartDialogue(UDialogue* InDialogue,
