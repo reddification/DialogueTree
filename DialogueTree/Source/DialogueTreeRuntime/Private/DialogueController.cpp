@@ -476,7 +476,7 @@ void ADialogueController::CloseDisplay_Implementation()
 }
 
 void ADialogueController::DisplaySpeech_Implementation(FSpeechDetails InSpeechDetails,
-	UDialogueSpeakerComponent* InSpeaker)
+                                                       UDialogueSpeakerComponent* InSpeaker, int SpeechVariationIndex)
 {
 }
 

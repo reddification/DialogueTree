@@ -80,7 +80,7 @@ private:
 	* Tells the active speaker component to start speaking and 
 	* sets any behavior flags associated with this speech. 
 	*/
-	void StartAudio();
+	void StartAudio(int SpeechVariationIndex);
 
 private:
 	/** The primary content of the speech */

@@ -7,6 +7,7 @@
 #include "DialogueSpeakerComponent.h"
 #include "LogDialogueTree.h"
 #include "Interfaces/DialogueCharacter.h"
+#include "Sound/SoundCue.h"
 #include "Transitions/DialogueTransition.h"
 
 void UDialogueSpeechNode::InitSpeechData(FSpeechDetails& InDetails,
@@ -56,13 +57,14 @@ void UDialogueSpeechNode::EnterNode()
 		return;
 	}
 
-	if (!Details.bIgnoreContent)
+	if (!Details.bIgnoreContent && !Details.SpeechVariations.IsEmpty())
 	{
+		const int SpeechVariationIndex = Details.SpeechVariations.Num() > 1 ? FMath::RandRange(0, Details.SpeechVariations.Num() - 1) : 0;
 		//Display the current speech
-		Dialogue->DisplaySpeech(Details);
+		Dialogue->DisplaySpeech(Details, SpeechVariationIndex);
 
 		//Play any audio and set any flags for the speaker
-		StartAudio();
+		StartAudio(SpeechVariationIndex);
 	}
 	
 	//If no transition, throw an error and close the dialogue 
@@ -123,7 +125,7 @@ FDialogueOption UDialogueSpeechNode::GetAsOption()
 	return FDialogueOption{ Details, this };
 }
 
-void UDialogueSpeechNode::StartAudio()
+void UDialogueSpeechNode::StartAudio(int SpeechVariationIndex)
 {
 	UDialogueSpeakerComponent* Speaker = GetSpeaker();
 
@@ -132,9 +134,9 @@ void UDialogueSpeechNode::StartAudio()
 		//Play any audio
 		Speaker->Stop();
 
-		if (Details.SpeechAudio)
+		if (Details.SpeechVariations[SpeechVariationIndex].SpeechAudio)
 		{
-			Speaker->PlaySpeechAudioClip(Details.SpeechAudio);
+			Speaker->PlaySpeechAudioClip(Details.SpeechVariations[SpeechVariationIndex].SpeechAudio);
 		}
 
 		//Set any behavior flags

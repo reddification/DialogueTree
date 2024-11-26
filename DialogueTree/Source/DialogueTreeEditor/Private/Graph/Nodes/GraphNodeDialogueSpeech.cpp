@@ -121,8 +121,10 @@ void UGraphNodeDialogueSpeech::CreateAssetNode(UDialogue* InAsset)
     SpeechDetails.SpeechTitle = SpeechTitle;
     SpeechDetails.SpeakerName = Speaker.Speaker->GetSpeakerName();
     SpeechDetails.bIgnoreContent = bIgnoreContent;
-    SpeechDetails.SpeechText = SpeechText;
-    SpeechDetails.SpeechAudio = SpeechAudio;
+
+    for (int i = 0; i < SpeechVariations.Num(); i++)
+        SpeechDetails.SpeechVariations.Add({ SpeechVariations[i].SpeechText, SpeechVariations[i].SpeechAudio });
+    
     SpeechDetails.MinimumPlayTime = MinimumPlayTime;
     SpeechDetails.bCanSkip = bCanSkip;
     SpeechDetails.GameplayTags = GameplayTags;
@@ -174,8 +176,9 @@ void UGraphNodeDialogueSpeech::LoadNodeData(UDialogueNode* InNode)
     bIgnoreContent = SpeechDetails.bIgnoreContent;
     GameplayTags = SpeechDetails.GameplayTags;
     MinimumPlayTime = SpeechDetails.MinimumPlayTime;
-    SpeechAudio = SpeechDetails.SpeechAudio;
-    SpeechText = SpeechDetails.SpeechText;
+
+    for (int i = 0; i < SpeechDetails.SpeechVariations.Num(); i++)
+        SpeechVariations.Add({ SpeechDetails.SpeechVariations[i].SpeechText, SpeechDetails.SpeechVariations[i].SpeechAudio });
 }
 
 UClass* UGraphNodeDialogueSpeech::GetTransitionType() const
@@ -191,7 +194,12 @@ void UGraphNodeDialogueSpeech::SetSpeaker(UDialogueSpeakerSocket* InSpeaker)
 
 FText UGraphNodeDialogueSpeech::GetSpeechText() const
 {
-    return SpeechText;
+    TArray<FText> SpeechVariationTexts;
+    for (int i = 0; i < SpeechVariations.Num(); i++)
+        SpeechVariationTexts.Add(SpeechVariations[i].SpeechText);
+
+    FText Result = FText::Join(FText::FromString(TEXT(" / ")), SpeechVariationTexts) ;
+    return Result;
 }
 
 UDialogueSpeakerSocket* UGraphNodeDialogueSpeech::GetSpeaker() const

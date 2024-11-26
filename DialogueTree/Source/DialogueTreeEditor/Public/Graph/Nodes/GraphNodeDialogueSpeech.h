@@ -17,6 +17,22 @@ class UDialogueTransition;
 /**
  * Graph node representing an individual dialogue speech. 
  */
+
+USTRUCT(BlueprintType)
+struct FSpeechVariationData
+{
+	GENERATED_BODY()
+
+	/** The text/dialogue content of the speech */
+	UPROPERTY(EditAnywhere, meta = (MultiLine = true))
+	FText SpeechText;
+
+	/** The sound to play as audio for the speech */
+	UPROPERTY(EditAnywhere)
+	USoundCue* SpeechAudio;
+
+};
+
 UCLASS()
 class DIALOGUETREEEDITOR_API UGraphNodeDialogueSpeech : 
 	public UGraphNodeDialogueEvent
@@ -123,14 +139,20 @@ private:
 	UPROPERTY(EditAnywhere, Category = "SpeechContent")
 	bool bIgnoreContent = false;
 
-	/** The text/dialogue content of the speech */
-	UPROPERTY(EditAnywhere, Category = "SpeechContent", meta = 
-		(MultiLine = true))
-	FText SpeechText;
+	// G2VS2 19.11.2024 @AK: FSpeechVariationData is added for G2VS2 purposes
 
-	/** The sound to play as audio for the speech */
+	/** The text/dialogue content of the speech */
 	UPROPERTY(EditAnywhere, Category = "SpeechContent")
-	USoundBase* SpeechAudio;
+	TArray<FSpeechVariationData> SpeechVariations;
+
+	// G2VS2 19.11.2024 @AK: commented FText and USoundBase* property as we need to support speech variations for a single dialogue node for cases like
+	// greetings, where a character can say "hi, hello, hey can I talk to you", etc
+	// UPROPERTY(EditAnywhere, Category = "SpeechContent", meta = (MultiLine = true))
+	// FText SpeechText;
+	//
+	// /** The sound to play as audio for the speech */
+	// UPROPERTY(EditAnywhere, Category = "SpeechContent")
+	// USoundBase* SpeechAudio;
 
 	/** The minimum time for the speech to play before transitioning (unless
 	* skipped) */

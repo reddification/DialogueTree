@@ -174,9 +174,10 @@ public:
 	* Calls on the controller to display the given speech. 
 	* 
 	* @param InDetails - const FSpeechDetails&, details for the 
-	* target speech. 
+	* target speech.
+	* @param SpeechVariationIndex 
 	*/
-	void DisplaySpeech(const FSpeechDetails& InDetails) const;
+	void DisplaySpeech(const FSpeechDetails& InDetails, int SpeechVariationIndex) const;
 
 	/**
 	* Calls on the controller to display the given dialogue options

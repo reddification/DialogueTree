@@ -122,7 +122,7 @@ void UInputDialogueTransition::GetOptions()
 		FDialogueOption NodeOption = Node->GetAsOption();
 
 		//If a valid option
-		if (!NodeOption.Details.SpeechText.IsEmpty() && NodeOption.TargetNode)
+		if (!NodeOption.Details.SpeechVariations.IsEmpty() && NodeOption.TargetNode)
 		{
 			Options.Add(NodeOption);
 		}

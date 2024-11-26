@@ -128,7 +128,7 @@ void UDialogue::EndDialogue() const
 	}
 }
 
-void UDialogue::DisplaySpeech(const FSpeechDetails& InDetails) const
+void UDialogue::DisplaySpeech(const FSpeechDetails& InDetails, int SpeechVariationIndex) const
 {
 	if (!Speakers[InDetails.SpeakerName] || !DialogueController)
 	{
@@ -136,11 +136,8 @@ void UDialogue::DisplaySpeech(const FSpeechDetails& InDetails) const
 		return;
 	}
 
-	DialogueController->DisplaySpeech(
-		InDetails,
-		Speakers[InDetails.SpeakerName]
-	);
-	DialogueController->OnDialogueSpeechDisplayed.Broadcast(InDetails);
+	DialogueController->DisplaySpeech(InDetails,Speakers[InDetails.SpeakerName], SpeechVariationIndex);
+	DialogueController->OnDialogueSpeechDisplayed.Broadcast(InDetails, SpeechVariationIndex);
 }
 
 void UDialogue::DisplayOptions(TArray<FDialogueOption> InOptions) const

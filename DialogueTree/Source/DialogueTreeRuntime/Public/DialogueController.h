@@ -14,8 +14,7 @@ class UDialogue;
 class UDialogueSpeakerComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDialogueControllerDelegate);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
-	FDialogueControllerSpeechDelegate, FSpeechDetails, SpeechDetails);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FDialogueControllerSpeechDelegate, FSpeechDetails, SpeechDetails, int, SpeechVariationIndex);
 
 /**
 * Struct used to extract node visited data for a single dialogue.
@@ -274,9 +273,10 @@ public:
 	* speech details
 	* @param InSpeaker - UDialogueSpeakerComponent*, speaker
 	* component associated with the target speech.
+	* @param SpeechVariationIndex
 	*/
 	UFUNCTION(BlueprintNativeEvent)
-	void DisplaySpeech(FSpeechDetails InSpeechDetails, UDialogueSpeakerComponent* InSpeaker);
+	void DisplaySpeech(FSpeechDetails InSpeechDetails, UDialogueSpeakerComponent* InSpeaker, int SpeechVariationIndex);
 
 	/**
 	* Displays a set of options for the user to select from
