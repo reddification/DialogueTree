@@ -137,7 +137,7 @@ public:
 	* if the speaker component is not engaged in dialogue. 
 	*/
 	UFUNCTION(BlueprintCallable, Category="Dialogue")
-	void TrySkipSpeech();
+	virtual void TrySkipSpeech();
 
 	/**
 	* Plays the given audio clip. Exposed to blueprint to be
@@ -307,7 +307,7 @@ protected:
 public:
 	/** Currently active dialogue controller */
 	UPROPERTY(BlueprintReadOnly, Category="Dialogue")
-	TObjectPtr<ADialogueController> DialogueController;
+	TObjectPtr<ADialogueController> GlobalDialogueController;
 
 	/** Delegate used to let others know when gameplay tags change */
 	UPROPERTY(BlueprintAssignable, Category = "Dialogue")
@@ -319,4 +319,8 @@ public:
 	*/
 	UPROPERTY(BlueprintAssignable, Category = "Dialogue")
 	FSpeakerSpeechSignature OnSpeechSkipped;
+
+	// G2VS2
+protected:
+	virtual ADialogueController* GetDialogueController() const;
 };

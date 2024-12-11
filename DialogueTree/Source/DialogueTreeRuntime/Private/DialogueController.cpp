@@ -102,16 +102,11 @@ void ADialogueController::StartDialogueWithNames(UDialogue* InDialogue,
 	// G2VS2 End
 }
 
-void ADialogueController::StartDialogue(UDialogue* InDialogue,
-	TArray<UDialogueSpeakerComponent*> InSpeakers, bool bResume)
+void ADialogueController::StartDialogue(UDialogue* InDialogue, TArray<UDialogueSpeakerComponent*> InSpeakers, bool bResume)
 {
 	if (InSpeakers.IsEmpty())
 	{
-		UE_LOG(
-			LogDialogueTree,
-			Warning,
-			TEXT("No speakers provided on dialogue start.")
-		);
+		UE_LOG(LogDialogueTree, Warning, TEXT("No speakers provided on dialogue start."));
 		return;
 	}
 
@@ -120,37 +115,29 @@ void ADialogueController::StartDialogue(UDialogue* InDialogue,
 	{
 		if (Speaker == nullptr)
 		{
-			UE_LOG(
-				LogDialogueTree,
-				Error,
-				TEXT("Could not start dialogue. Invalid speaker provided.")
-			);
+			UE_LOG(LogDialogueTree, Error, TEXT("Could not start dialogue. Invalid speaker provided."));
 			return;
 		}
 
 		if (Speaker->GetDialogueName().IsNone())
 		{
-			UE_LOG(
-				LogDialogueTree,
-				Error,
-				TEXT("Could not start dialogue. A provided speaker has an"
-					" unfilled DialogueName.")
-			);
+			UE_LOG(LogDialogueTree, Error, TEXT("Could not start dialogue. A provided speaker has an unfilled DialogueName."));
 			return;
 		}
 
-		if (TargetSpeakers.Contains(Speaker->GetDialogueName()))
+		FName CurrentSpeakerDialogueName = Speaker->GetDialogueName();
+		if (TargetSpeakers.Contains(CurrentSpeakerDialogueName))
 		{
-			UE_LOG(
-				LogDialogueTree,
-				Error,
-				TEXT("Could not start dialogue. Multiple provided speakers "
-					"share a DialogueName.")
-			);
-			return;
-		}
+			int SameNameOccurences = 0;
+			FString CurrentSpeakerDialogueNameString = CurrentSpeakerDialogueName.ToString();
+			for (const auto& TargetSpeaker : TargetSpeakers)
+				if (TargetSpeaker.Key.ToString().Contains(CurrentSpeakerDialogueNameString))
+					SameNameOccurences++;
 
-		TargetSpeakers.Add(Speaker->GetDialogueName(), Speaker);
+			CurrentSpeakerDialogueName = FName(FString::Printf(TEXT("%s%d"), *CurrentSpeakerDialogueNameString, SameNameOccurences+1));
+		}
+		
+		TargetSpeakers.Add(CurrentSpeakerDialogueName, Speaker);
 	}
 
 	StartDialogueWithNames(InDialogue, TargetSpeakers, bResume);

@@ -24,8 +24,8 @@ void UDialogueSpeakerComponent::BeginPlay()
 		GetWorld()->GetSubsystem<UDialogueManagerSubsystem>();
 	check(DialogueSubsystem);
 
-	DialogueController = DialogueSubsystem->GetCurrentController();
-	if (!DialogueController)
+	GlobalDialogueController = DialogueSubsystem->GetCurrentController();
+	if (!GlobalDialogueController)
 	{
 		UE_LOG(
 			LogDialogueTree, 
@@ -83,24 +83,18 @@ FGameplayTagContainer UDialogueSpeakerComponent::GetCurrentGameplayTags()
 
 void UDialogueSpeakerComponent::EndCurrentDialogue()
 {
-	if (!DialogueController 
-		|| !DialogueController->SpeakerInCurrentDialogue(this))
-	{
+	if (!GetDialogueController() || !GetDialogueController()->SpeakerInCurrentDialogue(this))
 		return;
-	}
 
-	DialogueController->EndDialogue();
+	GetDialogueController()->EndDialogue();
 }
 
 void UDialogueSpeakerComponent::TrySkipSpeech()
 {
-	if (!DialogueController || 
-		!DialogueController->SpeakerInCurrentDialogue(this))
-	{
+	if (!GetDialogueController() || !GetDialogueController()->SpeakerInCurrentDialogue(this))
 		return;
-	}
 
-	DialogueController->Skip();
+	GetDialogueController()->Skip();
 }
 
 void UDialogueSpeakerComponent::PlaySpeechAudioClip_Implementation(
@@ -155,7 +149,7 @@ void UDialogueSpeakerComponent::StartDialogueWithNames(UDialogue* InDialogue,
 	}
 
 	//Validate the controller
-	if (!DialogueController)
+	if (!GlobalDialogueController)
 	{
 		UE_LOG(
 			LogDialogueTree, 
@@ -166,7 +160,7 @@ void UDialogueSpeakerComponent::StartDialogueWithNames(UDialogue* InDialogue,
 	}
 
 	//Start the dialogue 
-	DialogueController->StartDialogueWithNames(InDialogue, InSpeakers);
+	GlobalDialogueController->StartDialogueWithNames(InDialogue, InSpeakers);
 }
 
 void UDialogueSpeakerComponent::StartDialogue(UDialogue* InDialogue,
@@ -184,7 +178,7 @@ void UDialogueSpeakerComponent::StartDialogue(UDialogue* InDialogue,
 	}
 
 	//Validate the controller
-	if (!DialogueController)
+	if (!GlobalDialogueController)
 	{
 		UE_LOG(
 			LogDialogueTree,
@@ -200,7 +194,7 @@ void UDialogueSpeakerComponent::StartDialogue(UDialogue* InDialogue,
 		InSpeakers.Add(this);
 	}
 
-	DialogueController->StartDialogue(InDialogue, InSpeakers, bResume);
+	GlobalDialogueController->StartDialogue(InDialogue, InSpeakers, bResume);
 }
 
 void UDialogueSpeakerComponent::StartOwnedDialogueWithNamesAt(FName InNodeID, TMap<FName, UDialogueSpeakerComponent*> InSpeakers)
@@ -232,7 +226,7 @@ void UDialogueSpeakerComponent::StartDialogueWithNamesAt(UDialogue* InDialogue, 
 	}
 
 	//Validate the controller
-	if (!DialogueController)
+	if (!GlobalDialogueController)
 	{
 		UE_LOG(
 			LogDialogueTree,
@@ -243,7 +237,7 @@ void UDialogueSpeakerComponent::StartDialogueWithNamesAt(UDialogue* InDialogue, 
 	}
 
 	//Start the dialogue 
-	DialogueController->StartDialogueWithNamesAt(
+	GlobalDialogueController->StartDialogueWithNamesAt(
 		InDialogue, 
 		InNodeID, 
 		InSpeakers
@@ -264,7 +258,7 @@ void UDialogueSpeakerComponent::StartDialogueAt(UDialogue* InDialogue, FName InN
 	}
 
 	//Validate the controller
-	if (!DialogueController)
+	if (!GlobalDialogueController)
 	{
 		UE_LOG(
 			LogDialogueTree,
@@ -280,7 +274,7 @@ void UDialogueSpeakerComponent::StartDialogueAt(UDialogue* InDialogue, FName InN
 		InSpeakers.Add(this);
 	}
 
-	DialogueController->StartDialogueAt(InDialogue, InNodeID, InSpeakers);
+	GlobalDialogueController->StartDialogueAt(InDialogue, InNodeID, InSpeakers);
 }
 
 FSpeakerActorEntry UDialogueSpeakerComponent::ToSpeakerActorEntry()
@@ -301,4 +295,9 @@ void UDialogueSpeakerComponent::BroadcastSpeechSkipped(
 void UDialogueSpeakerComponent::BroadcastCurrentGameplayTags()
 {
 	OnGameplayTagsChanged.Broadcast(GameplayTags);
+}
+
+ADialogueController* UDialogueSpeakerComponent::GetDialogueController() const
+{
+	return GlobalDialogueController;
 }
