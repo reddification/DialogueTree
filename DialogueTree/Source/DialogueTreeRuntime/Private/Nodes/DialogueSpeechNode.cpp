@@ -80,14 +80,25 @@ void UDialogueSpeechNode::EnterNode()
 	}
 
 	// G2VS2 start
-	if (Details.GestureTag.IsValid())
+	if (auto DialogueCharacter = Cast<IDialogueCharacter>(GetSpeaker()->GetOwner()))
 	{
-		if (FMath::RandRange(0.f, 1.f) < Details.GestureChance)
-			if (auto DialogueCharacter = Cast<IDialogueCharacter>(GetSpeaker()->GetOwner()))
-				DialogueCharacter->StartDialogueGesture(Details.GestureTag);
+		DialogueCharacter->StopDialogueGesture();
+		if (Details.GestureTag_Obsolete.IsValid())
+		{
+			if (FMath::RandRange(0.f, 1.f) < Details.GestureChance_Obsolete)
+				DialogueCharacter->StartDialogueGesture(Details.GestureTag_Obsolete);
+		}
 	}
-	// G2VS2 end
+
+	for (const auto& Gesture : Details.Gestures)
+	{
+		auto DialogueCharacter = Cast<IDialogueCharacter>(Dialogue->GetSpeaker(Gesture.SpeakerName)->GetOwner());
+		DialogueCharacter->StopDialogueGesture();
+		if (FMath::RandRange(0.f, 1.f) <= Gesture.GestureChance)
+			DialogueCharacter->StartDialogueGesture(Gesture.GestureTag);
+	}
 	
+	// G2VS2 end
 	//Play the transition 
 	Transition->StartTransition();
 }
@@ -101,7 +112,7 @@ void UDialogueSpeechNode::Skip()
 		// G2VS2
 		// 08.11.2024 @AK: the UDialogueSpeechNode now has events on skip, so now we just gotta do the UDialogueEvent_SkipGesture
 		// to remove redundant intervention into plugins source
-		if (Details.GestureTag.IsValid())
+		if (Details.GestureTag_Obsolete.IsValid())
 		{
 			auto DialogueCharacter = Cast<IDialogueCharacter>(GetSpeaker()->GetOwner());
 			DialogueCharacter->StopDialogueGesture();

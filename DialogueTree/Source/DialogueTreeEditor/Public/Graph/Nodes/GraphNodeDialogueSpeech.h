@@ -19,6 +19,22 @@ class UDialogueTransition;
  */
 
 USTRUCT(BlueprintType)
+struct FSpeechGesture
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	FPickableDialogueSpeaker Speaker;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FGameplayTag GestureTag;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(UIMin = 0.f, ClampMin = 0.f, UIMax = 1.f, ClampMax = 1.f))
+	float GestureChance = 0.8f;
+};
+
+
+USTRUCT(BlueprintType)
 struct FSpeechVariationData
 {
 	GENERATED_BODY()
@@ -168,10 +184,13 @@ private:
 	FGameplayTagContainer GameplayTags;
 
 	UPROPERTY(EditAnywhere, meta=(UIMin = 0.f, ClampMin = 0.f, UIMax = 1.f, ClampMax = 1.f), Category = "Gesture")
-	float GesturePlayChance = 0.8f;
+	float GesturePlayChance_Obsolete = 0.8f;
 	
 	UPROPERTY(EditAnywhere, meta=(EditCondition="GesturePlayChance > 0.f"), Category = "Gesture")
-	FGameplayTag GestureToPlay;
+	FGameplayTag GestureToPlay_Obsolete;
+
+	UPROPERTY(EditAnywhere, Category = "Gesture")
+	TArray<FSpeechGesture> SpeechGestures;
 
 	/** The strategy used to transition out of the speech/continue dialogue */
 	UPROPERTY(EditAnywhere, NoClear, Category = "Transition")

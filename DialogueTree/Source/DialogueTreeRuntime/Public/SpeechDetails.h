@@ -9,6 +9,21 @@
 //Generated
 #include "SpeechDetails.generated.h"
 
+USTRUCT(BlueprintType)
+struct DIALOGUETREERUNTIME_API FSpeechGestureData
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(BlueprintReadOnly)
+	FName SpeakerName;
+
+	UPROPERTY(BlueprintReadOnly)
+	FGameplayTag GestureTag;
+
+	UPROPERTY(BlueprintReadOnly, meta=(UIMin = 0.f, ClampMin = 0.f, UIMax = 1.f, ClampMax = 1.f))
+	float GestureChance;
+};
+
 // 19.11.2024 @AK: changing data for FSpeechDetails to have an array of FSpeechOption with FText and USoundCue instead of single FText SpeechText and SpeechAudio
 // G2VS2 Begin
 USTRUCT(BlueprintType)
@@ -17,11 +32,11 @@ struct DIALOGUETREERUNTIME_API FSpeechOptionData
 	GENERATED_BODY()
 	
 	/** The text of the speech */
-	UPROPERTY(BlueprintReadOnly, Category = "Dialogue")
+	UPROPERTY(BlueprintReadOnly)
 	FText SpeechText = FText();
 
 	/** The audio associated with the speech */
-	UPROPERTY(BlueprintReadOnly, Category = "Dialogue")
+	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<USoundCue> SpeechAudio = nullptr;
 };
 
@@ -75,10 +90,13 @@ struct DIALOGUETREERUNTIME_API FSpeechDetails
 
 	/** Gesture to play for character */
 	UPROPERTY(BlueprintReadOnly, Category = "Dialogue")
-	FGameplayTag GestureTag;
+	FGameplayTag GestureTag_Obsolete;
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Dialogue")
-	float GestureChance = 0.8f;
+	float GestureChance_Obsolete = 0.8f;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Dialogue")
+	TArray<FSpeechGestureData> Gestures;
 };
 
 // G2VS2 End

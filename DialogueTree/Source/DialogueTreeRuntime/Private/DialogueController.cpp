@@ -79,27 +79,22 @@ void ADialogueController::StartDialogueWithNames(UDialogue* InDialogue,
 	//Get start node 
 	FName StartNodeID = CurrentDialogue->GetRootNode()->GetNodeID();
 	FName RecordName = CurrentDialogue->GetFName();
-	if (bResume
-		&& DialogueRecords.Records.Contains(RecordName))
+	if (bResume && DialogueRecords.Records.Contains(RecordName))
 	{
-		const FDialogueNodeVisits& Record =
-			DialogueRecords.Records[RecordName];
-		StartNodeID = CurrentDialogue->HasNode(Record.ResumeNodeID) ?
-			Record.ResumeNodeID : StartNodeID;
+		const FDialogueNodeVisits& Record = DialogueRecords.Records[RecordName];
+		StartNodeID = CurrentDialogue->HasNode(Record.ResumeNodeID) ? Record.ResumeNodeID : StartNodeID;
 	}
 
+	for (auto& DialogueParticipant : InSpeakers)
+	{
+		DialogueParticipant.Value->OnDialogueStarted();
+	}
+	
 	//Start the dialogue 
 	OpenDisplay();
 
-	// Commented block for G2VS2
-	
-	// CurrentDialogue->OpenDialogueAt(StartNodeID, this, InSpeakers);
-	// OnDialogueStarted.Broadcast();
-
-	// G2VS2 Begin: changed order of invocations for camera angles logic
 	OnDialogueStarted.Broadcast();
 	CurrentDialogue->OpenDialogueAt(StartNodeID, this, InSpeakers);
-	// G2VS2 End
 }
 
 void ADialogueController::StartDialogue(UDialogue* InDialogue, TArray<UDialogueSpeakerComponent*> InSpeakers, bool bResume)
@@ -270,6 +265,7 @@ void ADialogueController::EndDialogue()
 		{
 			if (Entry.Value)
 			{
+				Entry.Value->OnDialogueEnded();
 				Entry.Value->Stop();
 				Entry.Value->ClearGameplayTags();
 			}

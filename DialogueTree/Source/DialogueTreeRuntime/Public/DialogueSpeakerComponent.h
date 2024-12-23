@@ -281,6 +281,8 @@ public:
 	* @param SkippedSpeech - FSpeechDetails, the skipped speech. 
 	*/
 	void BroadcastSpeechSkipped(FSpeechDetails SkippedSpeech);
+	virtual void OnDialogueStarted() {};
+	virtual void OnDialogueEnded() {};
 
 private:
 	void BroadcastCurrentGameplayTags();
