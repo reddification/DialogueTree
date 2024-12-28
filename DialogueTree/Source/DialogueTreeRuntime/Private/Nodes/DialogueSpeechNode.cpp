@@ -95,7 +95,28 @@ void UDialogueSpeechNode::EnterNode()
 		auto DialogueCharacter = Cast<IDialogueCharacter>(Dialogue->GetSpeaker(Gesture.SpeakerName)->GetOwner());
 		DialogueCharacter->StopDialogueGesture();
 		if (FMath::RandRange(0.f, 1.f) <= Gesture.GestureChance)
-			DialogueCharacter->StartDialogueGesture(Gesture.GestureTag);
+		{
+			FGameplayTag GestureTag;
+			if (!Gesture.GestureVariations.IsEmpty())
+			{
+				if (Gesture.GestureVariations.Num() == 1)
+				{
+					GestureTag = Gesture.GestureVariations.First();
+				}
+				else
+				{
+					const TArray<FGameplayTag>& GestureOptionsArray = Gesture.GestureVariations.GetGameplayTagArray();
+					GestureTag = GestureOptionsArray[FMath::RandRange(0, GestureOptionsArray.Num() - 1)];
+				}
+			}
+			else
+			{
+				GestureTag = Gesture.GestureTag_Obsolete;
+			}
+
+			if (GestureTag.IsValid())
+				DialogueCharacter->StartDialogueGesture(GestureTag);
+		}
 	}
 	
 	// G2VS2 end

@@ -113,6 +113,12 @@ public:
 	/** End UObject */
 #endif
 
+	// Some dialogues can be held between arbitrary participants. For example - random citizen dialogues on the streets: a merchant can talk to citizen, some unique NPC can talk to citizen, etc
+	// So to be able to have a single dialogue asset that fits all of those cases we can use generic aliases instead of actual UDialogeSpeakerComponent names
+	// But they also has to match the generic names used in dialogue tree. By convention these are SpeakerX, where X is an index of a participant starting with 1  
+	UPROPERTY(EditAnywhere, Category = "Dialogue")
+	bool bUseGenericSpeakerNames = false;
+	
 	/**
 	* Sets the component value associated with the given name 
 	* to the provided speaker component. BlueprintCallable. 
@@ -422,7 +428,7 @@ private:
 	UPROPERTY(EditAnywhere, NoClear, Category = "Dialogue", 
 		meta=(NoResetToDefault))
 	TMap<FName, FSpeakerField> SpeakerRoles;
-
+	
 	/** The list of all nodes in the dialogue */
 	UPROPERTY()
 	//TArray<UDialogueNode*> DialogueNodes;

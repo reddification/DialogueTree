@@ -18,7 +18,9 @@ UENUM(BlueprintType)
 enum class EIntComparison : uint8
 {
 	GreaterThan,
+	GreaterThanOrEqualTo,
 	LessThan,
+	LessThanOrEqualTo,
 	EqualTo
 };
 

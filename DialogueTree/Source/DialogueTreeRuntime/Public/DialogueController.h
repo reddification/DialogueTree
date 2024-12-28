@@ -114,7 +114,7 @@ public:
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Dialogue")
 	void StartDialogue(UDialogue* InDialogue,
-		TArray<UDialogueSpeakerComponent*> InSpeakers, bool bResume = false);
+	                   TArray<UDialogueSpeakerComponent*> InSpeakers, bool bResume = false);
 
 	/**
 	* Starts the provided dialogue with the provided speaker

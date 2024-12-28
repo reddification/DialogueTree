@@ -132,8 +132,18 @@ void UGraphNodeDialogueSpeech::CreateAssetNode(UDialogue* InAsset)
     SpeechDetails.GestureTag_Obsolete = GestureToPlay_Obsolete;
 
     for (int i = 0; i < SpeechGestures.Num(); i++)
+    {
         if (SpeechGestures[i].Speaker.Speaker != nullptr && SpeechGestures[i].Speaker.Speaker->IsValidSocket())
-            SpeechDetails.Gestures.Add({ SpeechGestures[i].Speaker.Speaker->GetSpeakerName(), SpeechGestures[i].GestureTag, SpeechGestures[i].GestureChance });
+        {
+            SpeechDetails.Gestures.Add(
+    {
+                SpeechGestures[i].Speaker.Speaker->GetSpeakerName(),
+                SpeechGestures[i].GestureTag_Obsolete,
+             SpeechGestures[i].GestureVariations,
+                SpeechGestures[i].GestureChance
+            });
+        }
+    }
     
     NewNode->InitSpeechData(SpeechDetails, TransitionType);
 }
@@ -209,9 +219,15 @@ FText UGraphNodeDialogueSpeech::GetSpeechText() const
         FString GesturesDescription;
         for (int i = 0; i < SpeechGestures.Num(); i++)
         {
+            FString GestureInfo;
+            if (!SpeechGestures[i].GestureVariations.IsEmpty())
+                GestureInfo = FString::Printf(TEXT("one of %s"), *SpeechGestures[i].GestureVariations.ToStringSimple());
+            else
+                GestureInfo = SpeechGestures[i].GestureTag_Obsolete.ToString();
+
             if (SpeechGestures[i].Speaker.Speaker != nullptr && SpeechGestures[i].Speaker.Speaker->IsValidSocket())
                 GesturesDescription = GesturesDescription.Append(FString::Printf(TEXT("\n[%s gestures %s with %.2f chance]"),
-                    *SpeechGestures[i].Speaker.Speaker->GetSpeakerName().ToString(), *SpeechGestures[i].GestureTag.ToString(), SpeechGestures[i].GestureChance));
+                    *SpeechGestures[i].Speaker.Speaker->GetSpeakerName().ToString(), *GestureInfo, SpeechGestures[i].GestureChance));
         }
 
         Result = FText::Join(FText::FromString(TEXT("")), Result, FText::FromString(GesturesDescription));

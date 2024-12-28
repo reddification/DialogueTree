@@ -104,7 +104,8 @@ void ADialogueController::StartDialogue(UDialogue* InDialogue, TArray<UDialogueS
 		UE_LOG(LogDialogueTree, Warning, TEXT("No speakers provided on dialogue start."));
 		return;
 	}
-
+	
+	int CurrentParticipantIndex = 1;
 	TMap<FName, UDialogueSpeakerComponent*> TargetSpeakers;
 	for (UDialogueSpeakerComponent* Speaker : InSpeakers)
 	{
@@ -121,7 +122,11 @@ void ADialogueController::StartDialogue(UDialogue* InDialogue, TArray<UDialogueS
 		}
 
 		FName CurrentSpeakerDialogueName = Speaker->GetDialogueName();
-		if (TargetSpeakers.Contains(CurrentSpeakerDialogueName))
+		if (InDialogue->bUseGenericSpeakerNames)
+		{
+			CurrentSpeakerDialogueName = FName(FString::Printf(TEXT("Speaker%d"), CurrentParticipantIndex++));
+		}
+		else if (TargetSpeakers.Contains(CurrentSpeakerDialogueName))
 		{
 			int SameNameOccurences = 0;
 			FString CurrentSpeakerDialogueNameString = CurrentSpeakerDialogueName.ToString();

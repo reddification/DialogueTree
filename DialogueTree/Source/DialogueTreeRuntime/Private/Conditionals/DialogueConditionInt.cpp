@@ -22,17 +22,18 @@ bool UDialogueConditionInt::IsMet() const
     check(Query);
     int32 QueryValue = Query->ExecuteQuery();
 
-    if (Comparison == EIntComparison::GreaterThan)
+    switch (Comparison)
     {
-        return QueryValue > CompareValue;
-    }
-    else if (Comparison == EIntComparison::LessThan)
-    {
-        return QueryValue < CompareValue;
-    }
-    else //Equal to
-    {
-        return QueryValue == CompareValue;
+        case EIntComparison::GreaterThan:
+            return QueryValue > CompareValue;
+        case EIntComparison::GreaterThanOrEqualTo:
+            return QueryValue >= CompareValue;
+        case EIntComparison::LessThan:
+            return QueryValue < CompareValue;
+        case EIntComparison::LessThanOrEqualTo:
+            return QueryValue <= CompareValue;
+        default:
+            return QueryValue == CompareValue;
     }
 }
 
@@ -69,15 +70,21 @@ FText UDialogueConditionInt::GetGraphDescription(FText QueryText)
     FText CompareText;
     switch (Comparison)
     {
-    case EIntComparison::GreaterThan:
-        CompareText = LOCTEXT("GreaterThan", ">");
+        case EIntComparison::GreaterThan:
+            CompareText = LOCTEXT("GreaterThan", ">");
+            break;
+        case EIntComparison::LessThan:
+            CompareText = LOCTEXT("LessThan", "<");
+            break;
+    case EIntComparison::GreaterThanOrEqualTo:
+        CompareText = LOCTEXT("GreaterThanOrEqualTo", ">=");
         break;
-    case EIntComparison::LessThan:
-        CompareText = LOCTEXT("LessThan", "<");
+    case EIntComparison::LessThanOrEqualTo:
+        CompareText = LOCTEXT("LessThanOrEqualTo", "<=");
         break;
-    default:
-        CompareText = LOCTEXT("EqualTo", "=");
-        break;
+        default:
+            CompareText = LOCTEXT("EqualTo", "=");
+            break;
     }
     FText CompareValueText = FText::AsNumber(CompareValue);
 

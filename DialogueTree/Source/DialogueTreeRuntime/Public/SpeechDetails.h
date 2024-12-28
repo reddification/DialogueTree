@@ -18,7 +18,10 @@ struct DIALOGUETREERUNTIME_API FSpeechGestureData
 	FName SpeakerName;
 
 	UPROPERTY(BlueprintReadOnly)
-	FGameplayTag GestureTag;
+	FGameplayTag GestureTag_Obsolete;
+
+	UPROPERTY(BlueprintReadOnly)
+	FGameplayTagContainer GestureVariations;
 
 	UPROPERTY(BlueprintReadOnly, meta=(UIMin = 0.f, ClampMin = 0.f, UIMax = 1.f, ClampMax = 1.f))
 	float GestureChance;
@@ -97,6 +100,15 @@ struct DIALOGUETREERUNTIME_API FSpeechDetails
 
 	UPROPERTY(BlueprintReadOnly, Category = "Dialogue")
 	TArray<FSpeechGestureData> Gestures;
+
+	// You can put parameters in speech phrases. Before rendering an actual output,
+	// each speech option is scanned for these parameters by maps key, which should be in curly brackets
+	// and then IDialogueTreeGameMode is querried to return a text for the parameter, searched by gameplay tag
+	// example. speech option text: Here, I managed to sell your goods for {Revenue} coins
+	// and in SpeechParameters: SpeechParameters.Add("Revenue", "Quest.TradingQuest.Dialogue.Parameter.Revenue")
+	// and IDialogueTreeGameMode::GetSpeechParameter("Quest.TradingQuest.Dialogue.Parameter.Revenue") returns FText of "134"
+	UPROPERTY(BlueprintReadOnly, Category = "Dialogue")
+	TMap<FString, FGameplayTag> SpeechParameters;
 };
 
 // G2VS2 End

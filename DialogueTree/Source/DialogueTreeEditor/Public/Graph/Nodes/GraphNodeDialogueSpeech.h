@@ -27,7 +27,10 @@ struct FSpeechGesture
 	FPickableDialogueSpeaker Speaker;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	FGameplayTag GestureTag;
+	FGameplayTag GestureTag_Obsolete;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FGameplayTagContainer GestureVariations;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(UIMin = 0.f, ClampMin = 0.f, UIMax = 1.f, ClampMax = 1.f))
 	float GestureChance = 0.8f;
@@ -192,6 +195,15 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Gesture")
 	TArray<FSpeechGesture> SpeechGestures;
 
+	// You can put parameters in speech phrases. Before rendering an actual output,
+	// each speech option is scanned for these parameters by maps key, which should be in curly brackets
+	// and then IDialogueTreeGameMode is querried to return a text for the parameter, searched by gameplay tag
+	// example. speech option text: Here, I managed to sell your goods for {Revenue} coins
+	// and in SpeechParameters: SpeechParameters.Add("Revenue", "Quest.TradingQuest.Dialogue.Parameter.Revenue")
+	// and IDialogueTreeGameMode::GetSpeechParameter("Quest.TradingQuest.Dialogue.Parameter.Revenue") returns FText of "134"
+	UPROPERTY(EditAnywhere, Category = "SpeechContent")
+	TMap<FString, FGameplayTag> SpeechParameters;
+	
 	/** The strategy used to transition out of the speech/continue dialogue */
 	UPROPERTY(EditAnywhere, NoClear, Category = "Transition")
 	TSubclassOf<UDialogueTransition> TransitionType;

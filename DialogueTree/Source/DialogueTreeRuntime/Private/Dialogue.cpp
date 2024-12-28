@@ -41,6 +41,9 @@ void UDialogue::PostEditChangeProperty(
 	{
 		OnChangeSpeakers(PropertyChangedEvent.ChangeType);
 	}
+	
+	// 27.12.2024 @AK: TODO when changed property is bUseGenericSpeakerNames == true - update speaker roles to have names like Speaker1, Speaker2 and so on
+	// lock modification of speaker roles names
 }
 
 #endif
