@@ -22,7 +22,6 @@
 #include "Graph/Nodes/GraphNodeDialogueOptionLock.h"
 #include "Graph/Nodes/GraphNodeDialogueReroute.h"
 #include "Graph/Nodes/GraphNodeDialogueSpeech.h"
-#include "Nodes/DialogueNode.h"
 #include "Transitions/DialogueTransition.h"
 
 #define LOCTEXT_NAMESPACE "DialogueEditorSchema"
@@ -33,6 +32,31 @@ int32 UDialogueEdGraphSchema::CurrentCacheRefreshID = 0;
 /** 
 * NewDialogueNodeAction 
 */
+
+UEdGraphNode* FDialogueTreeSchemaAction_AddComment::PerformAction(class UEdGraph* ParentGraph, UEdGraphPin* FromPin,
+	const FVector2D Location, bool bSelectNewNode)
+{
+	UEdGraphNode_Comment* const CommentTemplate = NewObject<UEdGraphNode_Comment>();
+
+	FVector2D SpawnLocation = Location;
+	FSlateRect Bounds;
+
+	TSharedPtr<SGraphEditor> GraphEditorPtr = SGraphEditor::FindGraphEditorForGraph(ParentGraph);
+	if (GraphEditorPtr.IsValid() && GraphEditorPtr->GetBoundsForSelectedNodes(/*out*/ Bounds, 50.0f))
+	{
+		CommentTemplate->SetBounds(Bounds);
+		SpawnLocation.X = CommentTemplate->NodePosX;
+		SpawnLocation.Y = CommentTemplate->NodePosY;
+	}
+	
+	UEdGraphNode* const NewNode = FEdGraphSchemaAction_NewNode::SpawnNodeFromTemplate<UEdGraphNode_Comment>(ParentGraph, CommentTemplate, SpawnLocation, bSelectNewNode);
+	auto CommentNode = Cast<UEdGraphNode_Comment>(NewNode);
+	CommentNode->CommentColor = FLinearColor::MakeRandomColor();
+	CommentNode->bCommentBubbleVisible_InDetailsPanel = true;
+	CommentNode->bCommentBubbleVisible = true;
+	CommentNode->bCommentBubblePinned = true;	
+	return NewNode;
+}
 
 FNewDialogueNodeAction::FNewDialogueNodeAction()
 	: FEdGraphSchemaAction()
@@ -168,16 +192,15 @@ void UDialogueEdGraphSchema::GetContextMenuActions(UToolMenu* Menu,
 		GetNodeContextMenu(Menu);
 
 		//Get the context menu for each of the node's pins
-		const UGraphNodeDialogueBase* DialogueNode = 
-			Cast<UGraphNodeDialogueBase>(Context->Node);
-		check(DialogueNode);
-
-		TArray<UEdGraphPin*> AllPins = DialogueNode->Pins;
-
-		for (int32 i = 0; i < AllPins.Num(); ++i)
+		// this can be a comment node
+		if (const UGraphNodeDialogueBase* DialogueNode = Cast<UGraphNodeDialogueBase>(Context->Node))
 		{
-			FText PinText = DialogueNode->GetPinMenuLabel(i);
-			GetPinContextMenu(Menu, AllPins[i], PinText);
+			TArray<UEdGraphPin*> AllPins = DialogueNode->Pins;
+			for (int32 i = 0; i < AllPins.Num(); ++i)
+			{
+				FText PinText = DialogueNode->GetPinMenuLabel(i);
+				GetPinContextMenu(Menu, AllPins[i], PinText);
+			}	
 		}
 	}
 
@@ -252,6 +275,11 @@ int32 UDialogueEdGraphSchema::GetCurrentVisualizationCacheID() const
 void UDialogueEdGraphSchema::ForceVisualizationCacheClear() const
 {
 	++CurrentCacheRefreshID;
+}
+
+TSharedPtr<FEdGraphSchemaAction> UDialogueEdGraphSchema::GetCreateCommentAction() const
+{
+	return TSharedPtr<FEdGraphSchemaAction>(static_cast<FEdGraphSchemaAction*>(new FDialogueTreeSchemaAction_AddComment));
 }
 
 TSharedPtr<FDialogueEditor> UDialogueEdGraphSchema::GetGraphEditor(
@@ -464,8 +492,7 @@ void UDialogueEdGraphSchema::GetSpeechNodeMenuActions(
 	}
 }
 
-TSharedPtr<FNewDialogueNodeAction> UDialogueEdGraphSchema::
-	MakeCreateSpeechNodeAction(UDialogueSpeakerSocket* Speaker, 
+TSharedPtr<FNewDialogueNodeAction> UDialogueEdGraphSchema::MakeCreateSpeechNodeAction(UDialogueSpeakerSocket* Speaker, 
 		TSubclassOf<UDialogueTransition> TransitionType, UObject* Outer) const
 {
 	check(Speaker && TransitionType && Outer);

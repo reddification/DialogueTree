@@ -7,6 +7,7 @@
 #include "Misc/NotifyHook.h"
 #include "Toolkits/AssetEditorToolkit.h"
 #include "UObject/GCObject.h"
+#include "WorkflowOrientedApp/WorkflowCentricApplication.h"
 
 class IDetailsView;
 class UDialogue;
@@ -14,8 +15,7 @@ class UDialogue;
 /**
 * Manages core editor features and tabs for the dialogue graph. 
 */
-class DIALOGUETREEEDITOR_API FDialogueEditor : public FAssetEditorToolkit, 
-	public FNotifyHook, public FGCObject
+class DIALOGUETREEEDITOR_API FDialogueEditor : public FAssetEditorToolkit, public FNotifyHook, public FGCObject
 {
 public:
 	/**
@@ -298,4 +298,11 @@ private:
 
 	/** The list of UI commands for the editor */
 	TSharedPtr<FUICommandList> EditorCommands;
+
+public: // G2VS2
+	void OnCreateComment();
+	bool CanCreateComment() const;
+
+private:
+	void OnNodeTitleCommitted(const FText& NewText, ETextCommit::Type CommitInfo, UEdGraphNode* NodeBeingChanged);
 };

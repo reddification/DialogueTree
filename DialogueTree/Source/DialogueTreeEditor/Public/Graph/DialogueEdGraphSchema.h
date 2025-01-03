@@ -33,12 +33,28 @@ struct FBreakLinkActionInfo
 	FUIAction Action;
 };
 
+USTRUCT()
+struct FDialogueTreeSchemaAction_AddComment : public FEdGraphSchemaAction
+{
+	GENERATED_BODY()
+	
+	FDialogueTreeSchemaAction_AddComment() : FEdGraphSchemaAction() {}
+	FDialogueTreeSchemaAction_AddComment(FText InDescription, FText InToolTip)
+		: FEdGraphSchemaAction(FText(), MoveTemp(InDescription), MoveTemp(InToolTip), 0)
+	{
+	}
+
+	// FEdGraphSchemaAction interface
+	virtual UEdGraphNode* PerformAction(class UEdGraph* ParentGraph, UEdGraphPin* FromPin, const FVector2D Location, bool bSelectNewNode = true) override final;
+	// End of FEdGraphSchemaAction interface
+};
+
+
 /**
 * Schema action for creating a new node. 
 */
 USTRUCT()
-struct DIALOGUETREEEDITOR_API FNewDialogueNodeAction : 
-	public FEdGraphSchemaAction
+struct DIALOGUETREEEDITOR_API FNewDialogueNodeAction : public FEdGraphSchemaAction
 {
 public:
 	GENERATED_USTRUCT_BODY()
@@ -127,6 +143,10 @@ public:
 		const override;
 	virtual int32 GetCurrentVisualizationCacheID() const override;
 	virtual void ForceVisualizationCacheClear() const override;
+
+	// G2VS2
+	virtual TSharedPtr<FEdGraphSchemaAction> GetCreateCommentAction() const override;
+	
 	/** End UEdGraphSchema */
 
 	/**

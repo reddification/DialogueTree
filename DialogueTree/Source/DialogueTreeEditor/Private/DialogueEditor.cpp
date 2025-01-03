@@ -38,8 +38,7 @@ void FDialogueEditor::InitEditor(const EToolkitMode::Type Mode,
     CreateInternalWidgets();
 
     //Define Layout 
-    const TSharedRef<FTabManager::FLayout> DefaultLayout = 
-        CreateLayout();
+    const TSharedRef<FTabManager::FLayout> DefaultLayout = CreateLayout();
        
     //Initialize toolkit
     const bool bCreateDefaultStandaloneMenu = true; 
@@ -194,12 +193,9 @@ TSharedRef<SGraphEditor> FDialogueEditor::CreateGraphViewportWidget()
 
     //Register editor selection events 
     SGraphEditor::FGraphEditorEvents EditorEvents;
-    EditorEvents.OnSelectionChanged = 
-        SGraphEditor::FOnSelectionChanged::CreateSP(
-            this, 
-            &FDialogueEditor::OnChangeSelection
-        );
-
+    EditorEvents.OnSelectionChanged = SGraphEditor::FOnSelectionChanged::CreateSP(this, &FDialogueEditor::OnChangeSelection);
+    EditorEvents.OnTextCommitted = FOnNodeTextCommitted::CreateSP(this, &FDialogueEditor::OnNodeTitleCommitted);
+    
     //Return graph editor 
     return SNew(SGraphEditor)
         .AdditionalCommands(EditorCommands)
@@ -256,12 +252,9 @@ void FDialogueEditor::CreateEdGraph()
 TSharedRef<FTabManager::FLayout> FDialogueEditor::CreateLayout() const
 {
     FName LayoutName = "DialogueEditorLayout";
-    FName ViewportTabID = 
-        FDialogueEditorTabs::ViewportTabID;
-    FName GraphPropertiesTabID = 
-        FDialogueEditorTabs::GraphPropertiesTabID;
-    FName NodeDetailsTabID = 
-        FDialogueEditorTabs::NodeDetailsTabID;
+    FName ViewportTabID = FDialogueEditorTabs::ViewportTabID;
+    FName GraphPropertiesTabID = FDialogueEditorTabs::GraphPropertiesTabID;
+    FName NodeDetailsTabID = FDialogueEditorTabs::NodeDetailsTabID;
 
     return FTabManager::NewLayout(LayoutName)
         ->AddArea
@@ -313,48 +306,30 @@ TSharedRef<FTabManager::FLayout> FDialogueEditor::CreateLayout() const
         );
 }
 
-void FDialogueEditor::RegisterViewportTabSpawner(
-    const TSharedRef<FTabManager>& InTabManager)
+void FDialogueEditor::RegisterViewportTabSpawner(const TSharedRef<FTabManager>& InTabManager)
 {
     check(WorkspaceMenuCategory.IsValid());
 
     //Get args 
-    FOnSpawnTab ViewportSpawner = FOnSpawnTab::CreateSP(
-        this, &FDialogueEditor::CreateGraphViewportTab
-    );
-    FText ViewportDisplayText = LOCTEXT(
-        "DialogueEditorViewportTab", "Viewport"
-    );
-    FSlateIcon ViewportIcon = FSlateIcon(
-        FAppStyle::GetAppStyleSetName(),
-        "GraphEditor.EventGraph_16x"
-    );
+    FOnSpawnTab ViewportSpawner = FOnSpawnTab::CreateSP(this, &FDialogueEditor::CreateGraphViewportTab);
+    FText ViewportDisplayText = LOCTEXT("DialogueEditorViewportTab", "Viewport");
+    FSlateIcon ViewportIcon = FSlateIcon(FAppStyle::GetAppStyleSetName(),"GraphEditor.EventGraph_16x");
 
     //Register spawner
-    InTabManager->RegisterTabSpawner(
-        FDialogueEditorTabs::ViewportTabID,
-        ViewportSpawner)
+    InTabManager->RegisterTabSpawner(FDialogueEditorTabs::ViewportTabID, ViewportSpawner)
         .SetDisplayName(ViewportDisplayText)
         .SetGroup(WorkspaceMenuCategory.ToSharedRef())
         .SetIcon(ViewportIcon);
 }
 
-void FDialogueEditor::RegisterGraphPropertiesTabSpawner(
-    const TSharedRef<FTabManager>& InTabManager)
+void FDialogueEditor::RegisterGraphPropertiesTabSpawner(const TSharedRef<FTabManager>& InTabManager)
 {
     check(WorkspaceMenuCategory.IsValid());
 
     //Get spawner args
-    FOnSpawnTab GraphPropertiesSpawner = FOnSpawnTab::CreateSP(
-        this, &FDialogueEditor::CreatePropertiesTab
-    );
-    FText GraphPropertiesDisplayText = LOCTEXT(
-        "DialogueEditorViewportTab", "Viewport"
-    );
-    FSlateIcon GraphPropertiesIcon = FSlateIcon(
-        FAppStyle::GetAppStyleSetName(),
-        "LevelEditor.Tabs.Details"
-    );
+    FOnSpawnTab GraphPropertiesSpawner = FOnSpawnTab::CreateSP(this, &FDialogueEditor::CreatePropertiesTab);
+    FText GraphPropertiesDisplayText = LOCTEXT("DialogueEditorViewportTab", "Viewport");
+    FSlateIcon GraphPropertiesIcon = FSlateIcon(FAppStyle::GetAppStyleSetName(),"LevelEditor.Tabs.Details");
 
     //Register spawner
     InTabManager->RegisterTabSpawner(
@@ -365,22 +340,14 @@ void FDialogueEditor::RegisterGraphPropertiesTabSpawner(
         .SetIcon(GraphPropertiesIcon);
 }
 
-void FDialogueEditor::RegisterNodeDetailsTabSpawner(
-    const TSharedRef<FTabManager>& InTabManager)
+void FDialogueEditor::RegisterNodeDetailsTabSpawner(const TSharedRef<FTabManager>& InTabManager)
 {
     check(WorkspaceMenuCategory.IsValid());
 
     //Get spawner args
-    FOnSpawnTab NodeDetailsSpawner = FOnSpawnTab::CreateSP(
-        this, 
-        &FDialogueEditor::CreateGraphDetailsTab
-    );
-    FText NodeDetailsDisplayText = LOCTEXT(
-        "DialogueEditorDetailsTab", "Selection Details");
-    FSlateIcon NodeDetailsIcon = FSlateIcon(
-        FAppStyle::GetAppStyleSetName(),
-        "LevelEditor.Tabs.Details"
-    );
+    FOnSpawnTab NodeDetailsSpawner = FOnSpawnTab::CreateSP(this, &FDialogueEditor::CreateGraphDetailsTab);
+    FText NodeDetailsDisplayText = LOCTEXT("DialogueEditorDetailsTab", "Selection Details");
+    FSlateIcon NodeDetailsIcon = FSlateIcon(FAppStyle::GetAppStyleSetName(),"LevelEditor.Tabs.Details");
 
     //Register spawner
     InTabManager->RegisterTabSpawner(
@@ -391,8 +358,7 @@ void FDialogueEditor::RegisterNodeDetailsTabSpawner(
         .SetIcon(NodeDetailsIcon);
 }
 
-void FDialogueEditor::CreateNodeDetailsWidget(
-    FPropertyEditorModule& PropertyModule)
+void FDialogueEditor::CreateNodeDetailsWidget(FPropertyEditorModule& PropertyModule)
 {
     //Args for new widget
     FDetailsViewArgs DetailsArgs;
@@ -400,43 +366,32 @@ void FDialogueEditor::CreateNodeDetailsWidget(
     DetailsArgs.NotifyHook = this;
 
     //Create the details widget
-    NodeDetailsWidget = 
-        PropertyModule.CreateDetailView(DetailsArgs);
+    NodeDetailsWidget = PropertyModule.CreateDetailView(DetailsArgs);
 
     //Setup the widget 
     NodeDetailsWidget->SetObject(nullptr);
-    NodeDetailsWidget->OnFinishedChangingProperties().AddSP(
-        this, 
-        &FDialogueEditor::OnFinishedChangingProperties
-    );
+    NodeDetailsWidget->OnFinishedChangingProperties().AddSP(this, &FDialogueEditor::OnFinishedChangingProperties);
 }
 
-void FDialogueEditor::CreateGraphPropertiesWidget(
-    FPropertyEditorModule& PropertyModule)
+void FDialogueEditor::CreateGraphPropertiesWidget(FPropertyEditorModule& PropertyModule)
 {
     //Get graph
     check(ViewportWidget.IsValid());
-    UDialogueEdGraph* DialogueGraph =
-        Cast<UDialogueEdGraph>(ViewportWidget->GetCurrentGraph());
+    UDialogueEdGraph* DialogueGraph = Cast<UDialogueEdGraph>(ViewportWidget->GetCurrentGraph());
     check(DialogueGraph);
 
     //Create graph properties widget
     FDetailsViewArgs PropertiesArgs;
     PropertiesArgs.bHideSelectionTip = true;
     PropertiesArgs.NotifyHook = this;
-    GraphPropertiesWidget =
-        PropertyModule.CreateDetailView(PropertiesArgs);
+    GraphPropertiesWidget = PropertyModule.CreateDetailView(PropertiesArgs);
 
     //Setup new widget
     GraphPropertiesWidget->SetObject(DialogueGraph);
-    GraphPropertiesWidget->OnFinishedChangingProperties().AddSP(
-        this, 
-        &FDialogueEditor::OnFinishedChangingProperties
-    );
+    GraphPropertiesWidget->OnFinishedChangingProperties().AddSP(this,  &FDialogueEditor::OnFinishedChangingProperties);
 }
 
-void FDialogueEditor::OnFinishedChangingProperties(
-    const FPropertyChangedEvent& PropertyChangedEvent)
+void FDialogueEditor::OnFinishedChangingProperties(const FPropertyChangedEvent& PropertyChangedEvent)
 {
     //Get graph
     check(TargetDialogue);
@@ -448,18 +403,15 @@ void FDialogueEditor::OnFinishedChangingProperties(
     TargetGraph->GetSchema()->ForceVisualizationCacheClear();
 }
 
-TSharedRef<SDockTab> FDialogueEditor::CreateGraphViewportTab(
-    const FSpawnTabArgs& Args) const
+TSharedRef<SDockTab> FDialogueEditor::CreateGraphViewportTab(const FSpawnTabArgs& Args) const
 {
     //Verify working with the viewport tab
     check(Args.GetTabId() == FDialogueEditorTabs::ViewportTabID);
     check(TargetDialogue);
 
     //Create the new tab
-    TSharedRef<SDockTab> NewTab = 
-        SNew(SDockTab)
-        .Label(LOCTEXT("ViewportTabLabel", "Dialogue Graph"))
-        .OnCanCloseTab_Lambda([]() { return false; });
+    TSharedRef<SDockTab> NewTab = SNew(SDockTab).Label(LOCTEXT("ViewportTabLabel", "Dialogue Graph"))
+                                                .OnCanCloseTab_Lambda([]() { return false; });
 
     if (ViewportWidget.IsValid())
     {
@@ -469,17 +421,14 @@ TSharedRef<SDockTab> FDialogueEditor::CreateGraphViewportTab(
     return NewTab;
 }
 
-TSharedRef<SDockTab> FDialogueEditor::CreateGraphDetailsTab(
-    const FSpawnTabArgs& Args) const
+TSharedRef<SDockTab> FDialogueEditor::CreateGraphDetailsTab(const FSpawnTabArgs& Args) const
 {
     //Verify we are working with the details tab
     check(Args.GetTabId() == FDialogueEditorTabs::NodeDetailsTabID);
 
     //Create the tab
-    TSharedRef<SDockTab> NewTab =
-        SNew(SDockTab)
-        .Label(LOCTEXT("GraphDetailsTabLabel", "Selection Details"))
-        .OnCanCloseTab_Lambda([]() { return false; });
+    TSharedRef<SDockTab> NewTab = SNew(SDockTab).Label(LOCTEXT("GraphDetailsTabLabel", "Selection Details"))
+                                                .OnCanCloseTab_Lambda([]() { return false; });
 
     //Attach the widget
     if (NodeDetailsWidget.IsValid())
@@ -490,21 +439,14 @@ TSharedRef<SDockTab> FDialogueEditor::CreateGraphDetailsTab(
     return NewTab;
 }
 
-TSharedRef<SDockTab> FDialogueEditor::CreatePropertiesTab(
-    const FSpawnTabArgs& Args) const
+TSharedRef<SDockTab> FDialogueEditor::CreatePropertiesTab(const FSpawnTabArgs& Args) const
 {
     //Verify we are working with the properties tab
-    check(Args.GetTabId() == 
-        FDialogueEditorTabs::GraphPropertiesTabID);
+    check(Args.GetTabId() == FDialogueEditorTabs::GraphPropertiesTabID);
 
     //Create the tab
-    TSharedRef<SDockTab> NewTab =
-        SNew(SDockTab)
-        .Label(LOCTEXT(
-            "GraphPropertiesTabLabel", 
-            "Graph Properties"
-        ))
-        .OnCanCloseTab_Lambda([]() { return false; });
+    TSharedRef<SDockTab> NewTab = SNew(SDockTab).Label(LOCTEXT("GraphPropertiesTabLabel", "Graph Properties"))
+                                                .OnCanCloseTab_Lambda([]() { return false; });
 
     //Add the widget to the tab
     if (GraphPropertiesWidget.IsValid())
@@ -521,18 +463,8 @@ void FDialogueEditor::ExtendToolbar()
     TSharedPtr<FExtender> Extender = MakeShareable(new FExtender);
 
     //Create callback delegate and register with extender
-    FToolBarExtensionDelegate ExtensionDelegate =
-        FToolBarExtensionDelegate::CreateSP(
-            this,
-            &FDialogueEditor::FillToolbarMenu
-        );
-
-    Extender->AddToolBarExtension(
-        FName("Asset"),
-        EExtensionHook::Before,
-        GetToolkitCommands(),
-        ExtensionDelegate
-    );
+    FToolBarExtensionDelegate ExtensionDelegate =FToolBarExtensionDelegate::CreateSP(this, &FDialogueEditor::FillToolbarMenu);
+    Extender->AddToolBarExtension(FName("Asset"),EExtensionHook::Before,GetToolkitCommands(),ExtensionDelegate);
 
     //Add the extender to the toolbar
     AddToolbarExtender(Extender);
@@ -543,26 +475,13 @@ void FDialogueEditor::FillToolbarMenu(FToolBarBuilder& ToolbarBuilder)
     //Build up toolbar 
     ToolbarBuilder.BeginSection("DialogueTree");
     {
-        FText CompileLabel =
-            LOCTEXT("CompileLabel", "Compile");
+        FText CompileLabel = LOCTEXT("CompileLabel", "Compile");
+        FUIAction CompileAction = FUIAction(FExecuteAction::CreateSP(this, &FDialogueEditor::OnCompile));
 
-        FUIAction CompileAction = 
-            FUIAction(FExecuteAction::CreateSP(
-                this, 
-                &FDialogueEditor::OnCompile
-            ));
-
-        ToolbarBuilder.AddToolBarButton(
-            CompileAction,
-            NAME_None,
-            CompileLabel,
-            CompileLabel,
-            TAttribute<FSlateIcon>(
-                this,
-                &FDialogueEditor::GetStatusImage
-            )
-        );
+        ToolbarBuilder.AddToolBarButton(CompileAction,NAME_None,CompileLabel,CompileLabel,
+            TAttribute<FSlateIcon>(this,&FDialogueEditor::GetStatusImage));
     }
+    
     ToolbarBuilder.EndSection();
 }
 
@@ -571,53 +490,25 @@ FSlateIcon FDialogueEditor::GetStatusImage() const
     check(TargetDialogue);
 
     //Set icon names
-    static const FName CompileStatusBackground(
-        "Blueprint.CompileStatus.Background"
-    );
-    static const FName CompileStatusCompiled(
-        "Blueprint.CompileStatus.Overlay.Good"
-    );
-    static const FName CompileStatusUncompiled(
-        "Blueprint.CompileStatus.Overlay.Unknown"
-    );
-    static const FName CompileStatusFailed(
-        "Blueprint.CompileStatus.Overlay.Error"
-    );
+    static const FName CompileStatusBackground("Blueprint.CompileStatus.Background");
+    static const FName CompileStatusCompiled("Blueprint.CompileStatus.Overlay.Good");
+    static const FName CompileStatusUncompiled("Blueprint.CompileStatus.Overlay.Unknown");
+    static const FName CompileStatusFailed("Blueprint.CompileStatus.Overlay.Error");
 
     //Combine icons and return as appropriate 
     switch (TargetDialogue->GetCompileStatus())
     {
-    case EDialogueCompileStatus::Compiled:
-        return FSlateIcon(
-            FAppStyle::GetAppStyleSetName(), 
-            CompileStatusBackground, 
-            NAME_None, 
-            CompileStatusCompiled
-        );
+        case EDialogueCompileStatus::Compiled:
+            return FSlateIcon(FAppStyle::GetAppStyleSetName(), CompileStatusBackground, NAME_None, CompileStatusCompiled);
 
-    case EDialogueCompileStatus::Failed:
-        return FSlateIcon(
-            FAppStyle::GetAppStyleSetName(), 
-            CompileStatusBackground, 
-            NAME_None, 
-            CompileStatusFailed
-        );
+        case EDialogueCompileStatus::Failed:
+            return FSlateIcon(FAppStyle::GetAppStyleSetName(), CompileStatusBackground, NAME_None, CompileStatusFailed);
 
-    case EDialogueCompileStatus::Uncompiled:
-        return FSlateIcon(
-            FAppStyle::GetAppStyleSetName(), 
-            CompileStatusBackground, 
-            NAME_None, 
-            CompileStatusUncompiled
-        );
+        case EDialogueCompileStatus::Uncompiled:
+            return FSlateIcon(FAppStyle::GetAppStyleSetName(), CompileStatusBackground, NAME_None, CompileStatusUncompiled);
 
-    default: //Default to failed: should never happen
-        return FSlateIcon(
-            FAppStyle::GetAppStyleSetName(), 
-            CompileStatusBackground, 
-            NAME_None, 
-            CompileStatusFailed
-        );
+        default: //Default to failed: should never happen
+            return FSlateIcon(FAppStyle::GetAppStyleSetName(), CompileStatusBackground, NAME_None, CompileStatusFailed);
     }
 }
 
@@ -627,8 +518,7 @@ void FDialogueEditor::OnCompile()
     UEdGraph* TargetGraph = TargetDialogue->GetEdGraph();
     check(TargetGraph);
 
-    UDialogueEdGraph* TargetDialogueGraph = 
-        CastChecked<UDialogueEdGraph>(TargetGraph);
+    UDialogueEdGraph* TargetDialogueGraph = CastChecked<UDialogueEdGraph>(TargetGraph);
     TargetDialogueGraph->CompileAsset();
 }
 
@@ -644,94 +534,43 @@ void FDialogueEditor::RegisterCommands()
 
     //Rename action
     EditorCommands->MapAction(
-        FGenericCommands::Get().Rename,
-        FExecuteAction::CreateRaw(
-            this,
-            &FDialogueEditor::OnRenameNode
-        ),
-        FCanExecuteAction::CreateRaw(
-            this,
-            &FDialogueEditor::CanRenameNode
-        )
-    );
+        FGenericCommands::Get().Rename,FExecuteAction::CreateRaw(this,&FDialogueEditor::OnRenameNode),
+        FCanExecuteAction::CreateRaw(this,&FDialogueEditor::CanRenameNode));
 
     //Duplicate action
     EditorCommands->MapAction(
-        FGenericCommands::Get().Duplicate,
-        FExecuteAction::CreateRaw(
-            this, 
-            &FDialogueEditor::OnDuplicateNodes
-        ),
-        FCanExecuteAction::CreateRaw(
-            this, 
-            &FDialogueEditor::CanDuplicateNodes
-        )
-    );
+        FGenericCommands::Get().Duplicate,FExecuteAction::CreateRaw(this, &FDialogueEditor::OnDuplicateNodes),
+        FCanExecuteAction::CreateRaw(this, &FDialogueEditor::CanDuplicateNodes));
 
     //Select all action 
     EditorCommands->MapAction(
-        FGenericCommands::Get().SelectAll,
-        FExecuteAction::CreateRaw(
-            this,
-            &FDialogueEditor::OnSelectAll
-        ),
-        FCanExecuteAction::CreateRaw(
-            this, 
-            &FDialogueEditor::CanSelectAll
-        )
-    );
+        FGenericCommands::Get().SelectAll,FExecuteAction::CreateRaw(this,&FDialogueEditor::OnSelectAll),
+        FCanExecuteAction::CreateRaw(this, &FDialogueEditor::CanSelectAll));
 
     //Delete action 
     EditorCommands->MapAction(
-        FGenericCommands::Get().Delete,
-        FExecuteAction::CreateRaw(
-            this, 
-            &FDialogueEditor::OnDeleteNodes
-        ),
-        FCanExecuteAction::CreateRaw(
-            this, 
-            &FDialogueEditor::CanDeleteNodes
-        )
-    );
+        FGenericCommands::Get().Delete,FExecuteAction::CreateRaw(this, &FDialogueEditor::OnDeleteNodes),
+        FCanExecuteAction::CreateRaw(this, &FDialogueEditor::CanDeleteNodes));
 
     //Copy action 
     EditorCommands->MapAction(
-        FGenericCommands::Get().Copy,
-        FExecuteAction::CreateRaw(
-            this, 
-            &FDialogueEditor::OnCopyNodes
-        ),
-        FCanExecuteAction::CreateRaw(
-            this, 
-            &FDialogueEditor::CanCopyNodes
-        )
+        FGenericCommands::Get().Copy,FExecuteAction::CreateRaw(this, &FDialogueEditor::OnCopyNodes),
+        FCanExecuteAction::CreateRaw(this, &FDialogueEditor::CanCopyNodes)
     );
 
     //Cut action 
     EditorCommands->MapAction(
-        FGenericCommands::Get().Cut,
-        FExecuteAction::CreateRaw(
-            this, 
-            &FDialogueEditor::OnCutNodes
-        ),
-        FCanExecuteAction::CreateRaw(
-            this, 
-            &FDialogueEditor::CanCutNodes
-        )
-    );
+        FGenericCommands::Get().Cut,FExecuteAction::CreateRaw(this, &FDialogueEditor::OnCutNodes),
+        FCanExecuteAction::CreateRaw(this, &FDialogueEditor::CanCutNodes));
 
     //Paste action
     EditorCommands->MapAction(
-        FGenericCommands::Get().Paste,
-        FExecuteAction::CreateRaw(
-            this, 
-            &FDialogueEditor::OnPasteNodes
-        ),
-        FCanExecuteAction::CreateRaw(
-            this, 
-            &FDialogueEditor::CanPasteNodes
-        )
-    );
+        FGenericCommands::Get().Paste,FExecuteAction::CreateRaw(this, &FDialogueEditor::OnPasteNodes),
+        FCanExecuteAction::CreateRaw(this, &FDialogueEditor::CanPasteNodes));
+
+    EditorCommands->MapAction(
+        FGraphEditorCommands::Get().CreateComment,FExecuteAction::CreateRaw(this, &FDialogueEditor::OnCreateComment),
+        FCanExecuteAction::CreateRaw(this, &FDialogueEditor::CanCreateComment));
 }
 
 void FDialogueEditor::OnRenameNode()
@@ -741,8 +580,7 @@ void FDialogueEditor::OnRenameNode()
         return;
     }
 
-    FGraphPanelSelectionSet Selected = 
-        ViewportWidget->GetSelectedNodes();
+    FGraphPanelSelectionSet Selected = ViewportWidget->GetSelectedNodes();
     for (UObject* Item : Selected)
     {
         UEdGraphNode* Node = Cast<UEdGraphNode>(Item);
@@ -760,8 +598,7 @@ bool FDialogueEditor::CanRenameNode() const
         return false;
     }
 
-    FGraphPanelSelectionSet Selected = 
-        ViewportWidget->GetSelectedNodes();
+    FGraphPanelSelectionSet Selected = ViewportWidget->GetSelectedNodes();
 
     //Allow only one node to be renamed at a time
     if (Selected.Num() != 1)
@@ -999,6 +836,36 @@ void FDialogueEditor::OnChangeSelection(const TSet<UObject*>& SelectedObjects)
         }
 
         NodeDetailsWidget->SetObjects(SelectedNodes);
+    }
+}
+
+
+bool FDialogueEditor::CanCreateComment() const
+{
+    return ViewportWidget.IsValid() ? (ViewportWidget->GetNumberOfSelectedNodes() != 0) : false;
+}
+
+void FDialogueEditor::OnNodeTitleCommitted(const FText& NewText, ETextCommit::Type CommitInfo,
+    UEdGraphNode* NodeBeingChanged)
+{
+    if (NodeBeingChanged->IsA<UEdGraphNode_Comment>())
+    {
+        static const FText TranscationTitle = FText::FromString(FString(TEXT("Rename Node")));
+        const FScopedTransaction Transaction(TranscationTitle);
+        NodeBeingChanged->Modify();
+        NodeBeingChanged->OnRenameNode(NewText.ToString());
+    }
+}
+
+void FDialogueEditor::OnCreateComment()
+{
+    if (UEdGraph* EdGraph = ViewportWidget.IsValid() ? ViewportWidget->GetCurrentGraph() : nullptr)
+    {
+        TSharedPtr<FEdGraphSchemaAction> Action = EdGraph->GetSchema()->GetCreateCommentAction();
+        if (Action.IsValid())
+        {
+            Action->PerformAction(EdGraph, nullptr, ViewportWidget->GetPasteLocation());
+        }
     }
 }
 
