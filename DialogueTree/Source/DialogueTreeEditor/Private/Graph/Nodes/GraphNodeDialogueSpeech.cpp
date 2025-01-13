@@ -144,6 +144,8 @@ void UGraphNodeDialogueSpeech::CreateAssetNode(UDialogue* InAsset)
             });
         }
     }
+
+    SpeechDetails.AttributeChecks = AttributeChecks;
     
     NewNode->InitSpeechData(SpeechDetails, TransitionType);
 }
@@ -226,11 +228,51 @@ FText UGraphNodeDialogueSpeech::GetSpeechText() const
                 GestureInfo = SpeechGestures[i].GestureTag_Obsolete.ToString();
 
             if (SpeechGestures[i].Speaker.Speaker != nullptr && SpeechGestures[i].Speaker.Speaker->IsValidSocket())
-                GesturesDescription = GesturesDescription.Append(FString::Printf(TEXT("\n[%s gestures %s with %.2f chance]"),
+                GesturesDescription = GesturesDescription.Append(FString::Printf(TEXT("\n\n[%s gestures %s with %.2f chance]"),
                     *SpeechGestures[i].Speaker.Speaker->GetSpeakerName().ToString(), *GestureInfo, SpeechGestures[i].GestureChance));
         }
 
         Result = FText::Join(FText::FromString(TEXT("")), Result, FText::FromString(GesturesDescription));
+    }
+
+    if (!AttributeChecks.IsEmpty())
+    {
+        FString AttributeChecksDescription = TEXT("\n\nCheck attributes:");
+        for (const auto& AttributeCheckContainers : AttributeChecks)
+        {
+            FString AttributeTag = *AttributeCheckContainers.Key.ToString();
+            for (const FDialogueOptionAttributeCheck& Check : AttributeCheckContainers.Value.Checks)
+            {
+                FString Comparison;
+                switch (Check.ComparisonType)
+                {
+                    case EComparisonType::Equal:
+                        Comparison = FString::Printf(TEXT("== %.2f"), Check.TargetValue);
+                        break;
+                    case EComparisonType::NotEqual:
+                        Comparison = FString::Printf(TEXT("!= %.2f"), Check.TargetValue);
+                        break;
+                    case EComparisonType::Greater:
+                        Comparison = FString::Printf(TEXT("> %.2f"), Check.TargetValue);
+                        break;
+                    case EComparisonType::Less:
+                        Comparison = FString::Printf(TEXT("< %.2f"), Check.TargetValue);
+                        break;
+                    case EComparisonType::GreaterThanOrEqual:
+                        Comparison = FString::Printf(TEXT(">= %.2f"), Check.TargetValue);
+                        break;
+                    case EComparisonType::LessThanOrEqual:
+                        Comparison = FString::Printf(TEXT("<= %.2f"), Check.TargetValue);
+                        break;
+                    default:
+                        break;
+                }
+                
+                AttributeChecksDescription = AttributeChecksDescription.Append(FString::Printf(TEXT("\n%s %s"), *AttributeTag, *Comparison));
+            }
+        }
+
+        Result = FText::Join(FText::FromString(TEXT("")), Result, FText::FromString(AttributeChecksDescription));
     }
     
     return Result;

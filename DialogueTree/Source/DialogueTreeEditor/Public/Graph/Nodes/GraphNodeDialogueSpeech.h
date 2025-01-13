@@ -7,6 +7,7 @@
 #include "GameplayTagContainer.h"
 //Plugin
 #include "Graph/PickableDialogueSpeaker.h"
+#include "SpeechDetails.h"
 #include "GraphNodeDialogueEvent.h"
 //Generated
 #include "GraphNodeDialogueSpeech.generated.h"
@@ -29,13 +30,12 @@ struct FSpeechGesture
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FGameplayTag GestureTag_Obsolete;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(Categories="AI.Ability.Gesture,G2VS2.Character.Gesture"))
 	FGameplayTagContainer GestureVariations;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(UIMin = 0.f, ClampMin = 0.f, UIMax = 1.f, ClampMax = 1.f))
 	float GestureChance = 0.8f;
 };
-
 
 USTRUCT(BlueprintType)
 struct FSpeechVariationData
@@ -53,8 +53,7 @@ struct FSpeechVariationData
 };
 
 UCLASS()
-class DIALOGUETREEEDITOR_API UGraphNodeDialogueSpeech : 
-	public UGraphNodeDialogueEvent
+class DIALOGUETREEEDITOR_API UGraphNodeDialogueSpeech : public UGraphNodeDialogueEvent
 {
 	GENERATED_BODY()
 
@@ -203,6 +202,9 @@ private:
 	// and IDialogueTreeGameMode::GetSpeechParameter("Quest.TradingQuest.Dialogue.Parameter.Revenue") returns FText of "134"
 	UPROPERTY(EditAnywhere, Category = "SpeechContent")
 	TMap<FString, FGameplayTag> SpeechParameters;
+
+	UPROPERTY(EditAnywhere, Category = "Requirements")
+	TMap<FGameplayTag, FDialogueOptionAttributeCheckContainer> AttributeChecks;
 	
 	/** The strategy used to transition out of the speech/continue dialogue */
 	UPROPERTY(EditAnywhere, NoClear, Category = "Transition")

@@ -20,7 +20,7 @@ struct DIALOGUETREERUNTIME_API FSpeechGestureData
 	UPROPERTY(BlueprintReadOnly)
 	FGameplayTag GestureTag_Obsolete;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, meta=(Categories="AI.Ability.Gesture,G2VS2.Character.Gesture"))
 	FGameplayTagContainer GestureVariations;
 
 	UPROPERTY(BlueprintReadOnly, meta=(UIMin = 0.f, ClampMin = 0.f, UIMax = 1.f, ClampMax = 1.f))
@@ -42,6 +42,39 @@ struct DIALOGUETREERUNTIME_API FSpeechOptionData
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<USoundCue> SpeechAudio = nullptr;
 };
+
+UENUM(BlueprintType)
+enum class EComparisonType : uint8
+{
+	Equal,
+	NotEqual,
+	Greater,
+	Less,
+	GreaterThanOrEqual,
+	LessThanOrEqual
+};
+
+USTRUCT(BlueprintType)
+struct DIALOGUETREERUNTIME_API FDialogueOptionAttributeCheck
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float TargetValue = 50.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	EComparisonType ComparisonType = EComparisonType::Equal;
+};
+
+USTRUCT(BlueprintType)
+struct DIALOGUETREERUNTIME_API FDialogueOptionAttributeCheckContainer
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<FDialogueOptionAttributeCheck> Checks;
+};
+
 
 /**
 * Struct used to pass information about an individual dialogue 
@@ -109,67 +142,7 @@ struct DIALOGUETREERUNTIME_API FSpeechDetails
 	// and IDialogueTreeGameMode::GetSpeechParameter("Quest.TradingQuest.Dialogue.Parameter.Revenue") returns FText of "134"
 	UPROPERTY(BlueprintReadOnly, Category = "Dialogue")
 	TMap<FString, FGameplayTag> SpeechParameters;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Requirements")
+	TMap<FGameplayTag, FDialogueOptionAttributeCheckContainer> AttributeChecks;
 };
-
-// G2VS2 End
-
-// Original structure
-/**
-* Struct used to pass information about an individual dialogue 
-* speech. 
-*/
-// USTRUCT(BlueprintType)
-// struct DIALOGUETREERUNTIME_API FSpeechDetails
-// {
-// 	GENERATED_BODY()
-//
-// 	/** The text of the speech */
-// 	UPROPERTY(BlueprintReadOnly, Category = "Dialogue")
-// 	FText SpeechText = FText();
-//
-// 	/** The name of the speaker */
-// 	UPROPERTY(BlueprintReadOnly, Category = "Dialogue")
-// 	FName SpeakerName = NAME_None;
-//
-// 	/** The base title for the speech (foundation of its ID) */
-// 	UPROPERTY(BlueprintReadOnly, Category = "Dialogue")
-// 	FName SpeechTitle = NAME_None; 
-//
-// 	/** The audio associated with the speech */
-// 	UPROPERTY(BlueprintReadOnly, Category = "Dialogue")
-// 	TObjectPtr<USoundBase> SpeechAudio = nullptr;
-//
-// 	/** The minimum time for the speech to play before transitioning (unless
-// 	* skipped) */
-// 	UPROPERTY(BlueprintReadOnly, Category = "Dialogue")
-// 	float MinimumPlayTime = 3.f;
-//
-// 	/** Any behavior flags associated with the speech as gameplay tags */
-// 	UPROPERTY(BlueprintReadOnly, Category = "Dialogue")
-// 	FGameplayTagContainer GameplayTags;
-//
-// 	/** Whether the speech content should be ignored when entering the node */
-// 	UPROPERTY(BlueprintReadOnly, Category = "Dialogue")
-// 	bool bIgnoreContent = false;
-//
-// 	/** Whether the player is allowed to skip the speech */
-// 	UPROPERTY(BlueprintReadOnly, Category = "Dialogue")
-// 	bool bCanSkip = true;
-//
-// 	/** Used when an option. Whether the option is locked or free to 
-// 	* be selected */
-// 	UPROPERTY(BlueprintReadOnly, Category = "Dialogue")
-// 	bool bIsLocked = false;
-//
-// 	/** Additional message associated with the speech when used as an option.
-// 	* For example, can provide an optional reason for being locked. */
-// 	UPROPERTY(BlueprintReadOnly, Category = "Dialogue")
-// 	FText OptionMessage = FText();
-//
-// 	/** Gesture to play for character */
-// 	UPROPERTY(BlueprintReadOnly, Category = "Dialogue")
-// 	FGameplayTag GestureTag;
-// 	
-// 	UPROPERTY(BlueprintReadOnly, Category = "Dialogue")
-// 	float GestureChance = 0.8f;
-// };
