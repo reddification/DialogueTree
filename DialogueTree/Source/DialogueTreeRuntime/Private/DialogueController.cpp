@@ -87,7 +87,7 @@ void ADialogueController::StartDialogueWithNames(UDialogue* InDialogue,
 
 	for (auto& DialogueParticipant : InSpeakers)
 	{
-		DialogueParticipant.Value->OnDialogueStarted();
+		DialogueParticipant.Value->OnDialogueStarted(CurrentDialogue);
 	}
 	
 	//Start the dialogue 
@@ -270,7 +270,7 @@ void ADialogueController::EndDialogue()
 		{
 			if (Entry.Value)
 			{
-				Entry.Value->OnDialogueEnded();
+				Entry.Value->OnDialogueEnded(CurrentDialogue);
 				Entry.Value->Stop();
 				Entry.Value->ClearGameplayTags();
 			}
@@ -329,19 +329,31 @@ bool ADialogueController::SpeakerInCurrentDialogue(UDialogueSpeakerComponent* Ta
 		return false;
 	}
 
-	//Retrieve speakers
-	TMap<FName, UDialogueSpeakerComponent*> Speakers =
-		CurrentDialogue->GetAllSpeakers();
-	TArray<FName> SpeakerRoles;
-	Speakers.GetKeys(SpeakerRoles);
-
-	//If any one speaker matches the target, true
-	for (FName NextRole : SpeakerRoles)
+	if (CurrentDialogue->bUseGenericSpeakerNames)
 	{
-		if (Speakers[NextRole] == TargetSpeaker)
+		for (const auto& SpeakerKVP : CurrentDialogue->GetAllSpeakers())
 		{
-			return true;
+			if (SpeakerKVP.Value == TargetSpeaker)
+				return true;
 		}
+		
+		return false;
+	}
+	else
+	{
+		//Retrieve speakers
+		TMap<FName, UDialogueSpeakerComponent*> Speakers = CurrentDialogue->GetAllSpeakers();
+		TArray<FName> SpeakerRoles;
+		Speakers.GetKeys(SpeakerRoles);
+
+		//If any one speaker matches the target, true
+		for (FName NextRole : SpeakerRoles)
+		{
+			if (Speakers[NextRole] == TargetSpeaker)
+			{
+				return true;
+			}
+		}	
 	}
 
 	//No speakers matched the target, false
@@ -372,9 +384,7 @@ void ADialogueController::MarkNodeVisited(UDialogue* TargetDialogue, FName Targe
 	}
 
 	//Mark the node visited in the record 
-	DialogueRecords.Records[TargetDialogueName].VisitedNodeIDs.Add(
-		TargetNodeID
-	);
+	DialogueRecords.Records[TargetDialogueName].VisitedNodeIDs.Add(TargetNodeID);
 }
 
 void ADialogueController::MarkNodeUnvisited(UDialogue* TargetDialogue, FName TargetNodeID)
@@ -393,9 +403,7 @@ void ADialogueController::MarkNodeUnvisited(UDialogue* TargetDialogue, FName Tar
 	}
 
 	//If there is a record, remove the target index from the visited nodes
-	DialogueRecords.Records[TargetDialogueName].VisitedNodeIDs.Remove(
-		TargetNodeID
-	);
+	DialogueRecords.Records[TargetDialogueName].VisitedNodeIDs.Remove(TargetNodeID);
 }
 
 void ADialogueController::ClearAllNodeVisitsForDialogue(UDialogue* TargetDialogue)

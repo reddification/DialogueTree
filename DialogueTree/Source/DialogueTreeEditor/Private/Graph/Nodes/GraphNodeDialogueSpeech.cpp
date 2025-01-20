@@ -139,7 +139,8 @@ void UGraphNodeDialogueSpeech::CreateAssetNode(UDialogue* InAsset)
     {
                 SpeechGestures[i].Speaker.Speaker->GetSpeakerName(),
                 SpeechGestures[i].GestureTag_Obsolete,
-             SpeechGestures[i].GestureVariations,
+                SpeechGestures[i].GestureVariations,
+                SpeechGestures[i].SpeechGestureItems,
                 SpeechGestures[i].GestureChance
             });
         }

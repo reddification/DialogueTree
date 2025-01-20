@@ -27,11 +27,14 @@ struct FSpeechGesture
 	UPROPERTY(EditAnywhere)
 	FPickableDialogueSpeaker Speaker;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FGameplayTag GestureTag_Obsolete;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(Categories="AI.Ability.Gesture,G2VS2.Character.Gesture"))
 	FGameplayTagContainer GestureVariations;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TMap<FGameplayTag, FSpeechGestureItemData> SpeechGestureItems;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(UIMin = 0.f, ClampMin = 0.f, UIMax = 1.f, ClampMax = 1.f))
 	float GestureChance = 0.8f;
@@ -185,10 +188,10 @@ private:
 	UPROPERTY(EditAnywhere, Category = "BehaviorFlags")
 	FGameplayTagContainer GameplayTags;
 
-	UPROPERTY(EditAnywhere, meta=(UIMin = 0.f, ClampMin = 0.f, UIMax = 1.f, ClampMax = 1.f), Category = "Gesture")
+	UPROPERTY(VisibleAnywhere, meta=(UIMin = 0.f, ClampMin = 0.f, UIMax = 1.f, ClampMax = 1.f), Category = "Gesture")
 	float GesturePlayChance_Obsolete = 0.8f;
 	
-	UPROPERTY(EditAnywhere, meta=(EditCondition="GesturePlayChance > 0.f"), Category = "Gesture")
+	UPROPERTY(VisibleAnywhere, meta=(EditCondition="GesturePlayChance > 0.f"), Category = "Gesture")
 	FGameplayTag GestureToPlay_Obsolete;
 
 	UPROPERTY(EditAnywhere, Category = "Gesture")

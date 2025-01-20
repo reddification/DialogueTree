@@ -121,4 +121,14 @@ UGraphNodeDialogue* UGraphNodeDialogueJump::GetJumpTarget()
     return Cast<UGraphNodeDialogue>(JumpTarget->GetGraphNode());
 }
 
+const TArray<UGraphNodeDialogueBase*> UGraphNodeDialogueJump::GetDirectChildren() const
+{
+    TArray<UGraphNodeDialogueBase*> Result;
+    if (JumpTarget != nullptr)
+        if (auto DialogueNode = Cast<UGraphNodeDialogueBase>( JumpTarget->GetGraphNode()); ensure(DialogueNode))
+            Result.Add(DialogueNode);
+
+    return Result;
+}
+
 #undef LOCTEXT_NAMESPACE

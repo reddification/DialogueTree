@@ -38,9 +38,7 @@ public:
 	virtual void FinalizeAssetNode() override;
 	virtual bool CanCompileNode() override;
 	virtual FName GetBaseID() const override;
-	virtual void RegenerateNodeConnections(
-		UDialogueEdGraph* DialogueGraph
-	) override;
+	virtual void RegenerateNodeConnections(UDialogueEdGraph* DialogueGraph) override;
 	/** End UGraphNodeDialogue */
 	
 	/**
@@ -50,6 +48,8 @@ public:
 	*/
 	UGraphNodeDialogue* GetJumpTarget();
 
+	virtual const TArray<UGraphNodeDialogueBase*> GetDirectChildren() const override;
+	
 private:
 	/** The node to jump to */
 	UPROPERTY(EditAnywhere, Category = "Dialogue")

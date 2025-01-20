@@ -9,6 +9,27 @@
 //Generated
 #include "SpeechDetails.generated.h"
 
+// 13.01.2025 @AK: copypaste from struct GESTURES_API FGestureItem
+USTRUCT(BlueprintType)
+struct DIALOGUETREERUNTIME_API FSpeechGestureItemData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FName AttachmentSocket = NAME_None;
+
+	// If item is "two handed", specify socket on the static mesh to put left hand on
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FName LeftHandPositioningSocketName = NAME_None;
+
+	// If item is "two handed", specify socket on the static mesh to put right hand on
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FName RightHandPositioningSocketName = NAME_None;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSoftObjectPtr<UStaticMesh> StaticMesh = nullptr;
+};
+
 USTRUCT(BlueprintType)
 struct DIALOGUETREERUNTIME_API FSpeechGestureData
 {
@@ -22,6 +43,9 @@ struct DIALOGUETREERUNTIME_API FSpeechGestureData
 
 	UPROPERTY(BlueprintReadOnly, meta=(Categories="AI.Ability.Gesture,G2VS2.Character.Gesture"))
 	FGameplayTagContainer GestureVariations;
+
+	UPROPERTY(BlueprintReadOnly)
+	TMap<FGameplayTag, FSpeechGestureItemData> SpeechGestureItems;
 
 	UPROPERTY(BlueprintReadOnly, meta=(UIMin = 0.f, ClampMin = 0.f, UIMax = 1.f, ClampMax = 1.f))
 	float GestureChance;

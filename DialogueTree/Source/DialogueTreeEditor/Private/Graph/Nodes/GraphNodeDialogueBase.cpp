@@ -81,8 +81,7 @@ const TArray<UGraphNodeDialogueBase*>
 	return ParentNodes;
 }
 
-const TArray<UGraphNodeDialogueBase*> 
-	UGraphNodeDialogueBase::GetDirectChildren() const
+const TArray<UGraphNodeDialogueBase*> UGraphNodeDialogueBase::GetDirectChildren() const
 {
 	TArray<UGraphNodeDialogueBase*> ChildNodes;
 

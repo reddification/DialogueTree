@@ -86,7 +86,7 @@ void UDialogueSpeechNode::EnterNode()
 		if (Details.GestureTag_Obsolete.IsValid())
 		{
 			if (FMath::RandRange(0.f, 1.f) < Details.GestureChance_Obsolete)
-				DialogueCharacter->StartDialogueGesture(Details.GestureTag_Obsolete);
+				DialogueCharacter->StartDialogueGesture(Details.GestureTag_Obsolete, {});
 		}
 	}
 
@@ -115,7 +115,7 @@ void UDialogueSpeechNode::EnterNode()
 			}
 
 			if (GestureTag.IsValid())
-				DialogueCharacter->StartDialogueGesture(GestureTag);
+				DialogueCharacter->StartDialogueGesture(GestureTag, Gesture.SpeechGestureItems);
 		}
 	}
 	

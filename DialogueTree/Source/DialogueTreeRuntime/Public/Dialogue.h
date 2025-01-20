@@ -118,6 +118,15 @@ public:
 	// But they also has to match the generic names used in dialogue tree. By convention these are SpeakerX, where X is an index of a participant starting with 1  
 	UPROPERTY(EditAnywhere, Category = "Dialogue")
 	bool bUseGenericSpeakerNames = false;
+
+	// Tags that can store any extra information, that can be used by other systems
+	// (i.e. store tag AI.Dialogue.ForceStopInteraction to make AI exit any current activity)
+	UPROPERTY(EditAnywhere, Category = "Dialogue")
+	FGameplayTagContainer OptionalDialogueTags;
+
+	// Ids of other potential/optional dialogue participants
+	UPROPERTY(EditAnywhere, Category = "Dialogue")
+	FGameplayTagContainer InviteOtherParticipants;
 	
 	/**
 	* Sets the component value associated with the given name 
