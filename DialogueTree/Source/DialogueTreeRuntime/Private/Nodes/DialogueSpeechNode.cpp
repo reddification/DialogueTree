@@ -92,7 +92,11 @@ void UDialogueSpeechNode::EnterNode()
 
 	for (const auto& Gesture : Details.Gestures)
 	{
-		auto DialogueCharacter = Cast<IDialogueCharacter>(Dialogue->GetSpeaker(Gesture.SpeakerName)->GetOwner());
+		auto SpeakerComponent = Dialogue->GetSpeaker(Gesture.SpeakerName);
+		if (SpeakerComponent == nullptr)
+			continue;
+
+		auto DialogueCharacter = Cast<IDialogueCharacter>(SpeakerComponent->GetOwner());
 		DialogueCharacter->StopDialogueGesture();
 		if (FMath::RandRange(0.f, 1.f) <= Gesture.GestureChance)
 		{
