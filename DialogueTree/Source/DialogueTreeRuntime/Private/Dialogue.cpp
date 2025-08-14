@@ -195,7 +195,8 @@ void UDialogue::TraverseNode(UDialogueNode* InNode)
 		return;
 	}
 
-	//Mark the node visited 
+	//Mark the node visited
+	
 	DialogueController->MarkNodeVisited(this, InNode->GetNodeID());
 
 	//Traverse the target node 
@@ -208,15 +209,9 @@ EDialogueCompileStatus UDialogue::GetCompileStatus() const
 	return CompileStatus;
 }
 
-TMap<FName, UDialogueSpeakerComponent*> UDialogue::GetAllSpeakers() const
+const TMap<FName, UDialogueSpeakerComponent*>& UDialogue::GetAllSpeakers() const
 {
-	//Have to manually copy to handle conversion from TObjectPtr
-	TMap<FName, UDialogueSpeakerComponent*> AllSpeakers;
-	for (auto& Speaker : Speakers)
-	{
-		AllSpeakers.Add(Speaker.Key, Speaker.Value);
-	}
-	return AllSpeakers;
+	return Speakers;
 }
 
 bool UDialogue::SpeakerIsPresent(const FName SpeakerName) const
@@ -226,16 +221,12 @@ bool UDialogue::SpeakerIsPresent(const FName SpeakerName) const
 
 bool UDialogue::WasNodeVisited(UDialogueNode* TargetNode) const
 {
-	if (!DialogueController || !TargetNode
-		|| !DialogueNodes.Contains(TargetNode->GetNodeID()))
+	if (!DialogueController || !TargetNode || !DialogueNodes.Contains(TargetNode->GetNodeID()))
 	{
 		return false;
 	}
 
-	return DialogueController->WasNodeVisited(
-		this,
-		TargetNode->GetNodeID()
-	);
+	return DialogueController->WasNodeVisited(this, TargetNode->GetNodeID());
 }
 
 void UDialogue::MarkNodeVisited(UDialogueNode* TargetNode, bool bVisited)

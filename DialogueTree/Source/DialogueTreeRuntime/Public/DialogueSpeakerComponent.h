@@ -281,8 +281,10 @@ public:
 	* @param SkippedSpeech - FSpeechDetails, the skipped speech. 
 	*/
 	void BroadcastSpeechSkipped(FSpeechDetails SkippedSpeech);
-	virtual void OnDialogueStarted(const UDialogue* CurrentDialogue) {};
-	virtual void OnDialogueEnded(const UDialogue*) {};
+	virtual void OnDialogueStarted(const UDialogue* CurrentDialogue) {}
+	virtual void OnDialogueEnded(const UDialogue*) {}
+	
+	bool IsPlayer() const { return bOwnerIsPlayer; }
 
 private:
 	void BroadcastCurrentGameplayTags();
@@ -296,6 +298,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue")
 	FName DialogueName;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue")
+	bool bOwnerIsPlayer = false;
+	
 	/** The default dialogue to start when initiating dialogue */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue")
 	TObjectPtr<UDialogue> OwnedDialogue;
@@ -325,4 +330,11 @@ public:
 	// G2VS2
 protected:
 	virtual ADialogueController* GetDialogueController() const;
+	void SetDialogueSpeakerId(const FGuid& InDialogueSpeakerId) { DialogueSpeakerId = InDialogueSpeakerId; };
+	
+public:
+	const FGuid& GetDialogueSpeakerId() const { return DialogueSpeakerId; }
+
+private:
+	FGuid DialogueSpeakerId;
 };

@@ -22,12 +22,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FDialogueControllerSpeechDelegate, 
 */
 
 USTRUCT(BlueprintType)
-struct DIALOGUETREERUNTIME_API FDialogueNodeVisits
+struct DIALOGUETREERUNTIME_API FCharacterDialogueHistory
 {
 	GENERATED_BODY()
-
-	UPROPERTY(BlueprintReadOnly, Category = "Dialogue")
-	FName DialogueFName;
 
 	UPROPERTY(BlueprintReadOnly, SaveGame, Category = "Dialogue")
 	TSet<FName> VisitedNodeIDs;
@@ -36,18 +33,31 @@ struct DIALOGUETREERUNTIME_API FDialogueNodeVisits
 	FName ResumeNodeID = NAME_None;
 };
 
+
+USTRUCT(BlueprintType)
+struct DIALOGUETREERUNTIME_API FDialogueHistory
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, Category = "Dialogue")
+	FName DialogueFName;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Dialogue")
+	TMap<FGuid, FCharacterDialogueHistory> DialogueNodeHistory;
+};
+
 /**
 * Struct used to extract the node visit "memory" of one or more dialogues.
 * Used for saving and loading.
 */
 USTRUCT(BlueprintType)
-struct DIALOGUETREERUNTIME_API FDialogueRecords
+struct DIALOGUETREERUNTIME_API FDialogueHistories
 {
 	GENERATED_BODY()
 
 	/** Map of dialogue FNames to their records of visited nodes */
 	UPROPERTY(BlueprintReadOnly, SaveGame, Category = "Dialogue")
-	TMap<FName, FDialogueNodeVisits> Records;
+	TMap<FName, FDialogueHistory> Histories;
 };
 
 /**
@@ -181,7 +191,7 @@ public:
 	* @return FDialogueMemory - record of all node visits in the game.
 	*/
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Dialogue")
-	FDialogueRecords GetDialogueRecords() const;
+	FDialogueHistories GetDialogueRecords() const;
 
 	/**
 	* Clears node visitation info from all dialogues.
@@ -196,7 +206,7 @@ public:
 	* @param InRecords - const FDialogueRecords&, the records to load.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Dialogue")
-	void ImportDialogueRecords(FDialogueRecords InRecords);
+	void ImportDialogueRecords(FDialogueHistories InRecords);
 
 	/**
 	* Checks if the specified speaker is a participant in the current dialogue.
@@ -239,7 +249,7 @@ public:
 	* @return bool - True if the node was visited, False otherwise.
 	*/
 	bool WasNodeVisited(const UDialogue* TargetDialogue,
-		FName TargetNodeID) const;
+	                    FName TargetNodeID) const;
 
 	/**
 	* Sets the resume node for the target dialogue to the target node. Called
@@ -312,7 +322,7 @@ protected:
 
 private:
 	/** Controller's memory of visited nodes */
-	FDialogueRecords DialogueRecords;
+	FDialogueHistories DialogueHistories;
 
 public:
 	/** Delegate event call for when a new dialogue is started.*/
@@ -326,4 +336,9 @@ public:
 	/** Delegate event call for when a speech plays.*/
 	UPROPERTY(BlueprintAssignable, Category = "Dialogue")
 	FDialogueControllerSpeechDelegate OnDialogueSpeechDisplayed;
+
+	//G2VS2
+private:
+	// deliberately does not include player because player could have participate in the same dialogue D with NPC A but not with NPC B 
+	TArray<FGuid> GetSpeakerIds(const UDialogue* Dialogue) const;
 };

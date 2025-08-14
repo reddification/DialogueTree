@@ -239,7 +239,7 @@ public:
 	* speaker names to components. 
 	*/
 	UFUNCTION(BlueprintCallable, Category="Dialogue")
-	TMap<FName, UDialogueSpeakerComponent*> GetAllSpeakers() const;
+	const TMap<FName, UDialogueSpeakerComponent*>& GetAllSpeakers() const;
 
 	/**
 	* Checks if a speaker with the given name is currently present/valid for 
@@ -453,7 +453,7 @@ private:
 
 	/** A mapping of speaker names to their found components */
 	UPROPERTY()
-	TMap<FName, TObjectPtr<UDialogueSpeakerComponent>> Speakers;
+	TMap<FName, UDialogueSpeakerComponent*> Speakers;
 
 	/** The controlling actor for the dialogue */
 	UPROPERTY()

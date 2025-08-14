@@ -39,37 +39,23 @@ TMap<FName, UDialogueSpeakerComponent*> ADialogueController::GetSpeakers() const
 	return TMap<FName, UDialogueSpeakerComponent*>();
 }
 
-void ADialogueController::StartDialogueWithNames(UDialogue* InDialogue,
-	TMap<FName, UDialogueSpeakerComponent*> InSpeakers, bool bResume)
+void ADialogueController::StartDialogueWithNames(UDialogue* InDialogue, TMap<FName, UDialogueSpeakerComponent*> InSpeakers, bool bResume)
 {
 	if (!InDialogue)
 	{
-		UE_LOG(
-			LogDialogueTree,
-			Error,
-			TEXT("Could not start dialogue. Provided dialogue null.")
-		);
+		UE_LOG(LogDialogueTree, Error, TEXT("Could not start dialogue. Provided dialogue null."));
 		return;
 	}
 
 	if (InDialogue->GetCompileStatus() != EDialogueCompileStatus::Compiled)
 	{
-		UE_LOG(
-			LogDialogueTree,
-			Error,
-			TEXT("Could not start dialogue [%s]. Dialogue not compiled."),
-			*InDialogue->GetName()
-		);
+		UE_LOG(LogDialogueTree, Error, TEXT("Could not start dialogue [%s]. Dialogue not compiled."), *InDialogue->GetName());
 		return;
 	}
 
 	if (!CanOpenDisplay())
 	{
-		UE_LOG(
-			LogDialogueTree,
-			Error,
-			TEXT("Could not start dialogue. CanOpenDisplay() was false.")
-		);
+		UE_LOG(LogDialogueTree, Error, TEXT("Could not start dialogue. CanOpenDisplay() was false."));
 		return;
 	}
 
@@ -78,11 +64,23 @@ void ADialogueController::StartDialogueWithNames(UDialogue* InDialogue,
 
 	//Get start node 
 	FName StartNodeID = CurrentDialogue->GetRootNode()->GetNodeID();
-	FName RecordName = CurrentDialogue->GetFName();
-	if (bResume && DialogueRecords.Records.Contains(RecordName))
+	FName DialogueName = CurrentDialogue->GetFName();
+	if (bResume && DialogueHistories.Histories.Contains(DialogueName))
 	{
-		const FDialogueNodeVisits& Record = DialogueRecords.Records[RecordName];
-		StartNodeID = CurrentDialogue->HasNode(Record.ResumeNodeID) ? Record.ResumeNodeID : StartNodeID;
+		const auto& DialogueHistory = DialogueHistories.Histories[DialogueName];
+		for (const auto& Speaker : InSpeakers)
+		{
+			const auto* CharacterDialogueHistory = DialogueHistory.DialogueNodeHistory.Find(Speaker.Value->GetDialogueSpeakerId());
+			if (CharacterDialogueHistory)
+			{
+				if (!CharacterDialogueHistory->ResumeNodeID.IsNone() && CurrentDialogue->HasNode(CharacterDialogueHistory->ResumeNodeID))
+				{
+					StartNodeID = CharacterDialogueHistory->ResumeNodeID;
+					break;
+				}
+			}
+		}
+		
 	}
 
 	for (auto& DialogueParticipant : InSpeakers)
@@ -306,19 +304,19 @@ void ADialogueController::SetSpeaker(FName InName,
 	}
 }
 
-FDialogueRecords ADialogueController::GetDialogueRecords() const
+FDialogueHistories ADialogueController::GetDialogueRecords() const
 {
-	return DialogueRecords;
+	return DialogueHistories;
 }
 
 void ADialogueController::ClearDialogueRecords()
 {
-	DialogueRecords.Records.Empty();
+	DialogueHistories.Histories.Empty();
 }
 
-void ADialogueController::ImportDialogueRecords(FDialogueRecords InRecords)
+void ADialogueController::ImportDialogueRecords(FDialogueHistories InRecords)
 {
-	DialogueRecords = InRecords;
+	DialogueHistories = InRecords;
 }
 
 bool ADialogueController::SpeakerInCurrentDialogue(UDialogueSpeakerComponent* TargetSpeaker) const
@@ -375,16 +373,21 @@ void ADialogueController::MarkNodeVisited(UDialogue* TargetDialogue, FName Targe
 	}
 
 	//Create a new record if the target record does not exist
-	if (!DialogueRecords.Records.Contains(TargetDialogueName))
+	if (!DialogueHistories.Histories.Contains(TargetDialogueName))
 	{
-		FDialogueNodeVisits NewRecord;
+		FDialogueHistory NewRecord;
 		NewRecord.DialogueFName = TargetDialogueName;
 
-		DialogueRecords.Records.Add(TargetDialogueName, NewRecord);
+		DialogueHistories.Histories.Add(TargetDialogueName, NewRecord);
 	}
 
-	//Mark the node visited in the record 
-	DialogueRecords.Records[TargetDialogueName].VisitedNodeIDs.Add(TargetNodeID);
+	//Mark the node visited in the record
+	const auto& SpeakersIds = GetSpeakerIds(TargetDialogue);
+	for (const auto& SpeakerId : SpeakersIds)
+	{
+		auto& CharacterDialogueHistory = DialogueHistories.Histories[TargetDialogueName].DialogueNodeHistory.FindOrAdd(SpeakerId);
+		CharacterDialogueHistory.VisitedNodeIDs.Add(TargetNodeID);
+	}
 }
 
 void ADialogueController::MarkNodeUnvisited(UDialogue* TargetDialogue, FName TargetNodeID)
@@ -397,13 +400,18 @@ void ADialogueController::MarkNodeUnvisited(UDialogue* TargetDialogue, FName Tar
 	FName TargetDialogueName = TargetDialogue->GetFName();
 
 	//If there is no record of that dialogue, do nothing
-	if (!DialogueRecords.Records.Contains(TargetDialogueName))
+	if (!DialogueHistories.Histories.Contains(TargetDialogueName))
 	{
 		return;
 	}
 
 	//If there is a record, remove the target index from the visited nodes
-	DialogueRecords.Records[TargetDialogueName].VisitedNodeIDs.Remove(TargetNodeID);
+	const auto& SpeakersIds = GetSpeakerIds(TargetDialogue);
+	for (const auto& SpeakerId : SpeakersIds)
+	{
+		auto& CharacterDialogueHistory = DialogueHistories.Histories[TargetDialogueName].DialogueNodeHistory.FindOrAdd(SpeakerId);
+		CharacterDialogueHistory.VisitedNodeIDs.Remove(TargetNodeID);
+	}
 }
 
 void ADialogueController::ClearAllNodeVisitsForDialogue(UDialogue* TargetDialogue)
@@ -416,16 +424,15 @@ void ADialogueController::ClearAllNodeVisitsForDialogue(UDialogue* TargetDialogu
 	FName TargetDialogueName = TargetDialogue->GetFName();
 
 	//If there is no record of that dialogue, do nothing
-	if (!DialogueRecords.Records.Contains(TargetDialogueName))
+	if (!DialogueHistories.Histories.Contains(TargetDialogueName))
 	{
 		return;
 	}
 
-	DialogueRecords.Records[TargetDialogueName].VisitedNodeIDs.Empty();
+	DialogueHistories.Histories[TargetDialogueName].DialogueNodeHistory.Empty();
 }
 
-bool ADialogueController::WasNodeVisited(const UDialogue* TargetDialogue,
-	FName TargetNodeID) const
+bool ADialogueController::WasNodeVisited(const UDialogue* TargetDialogue, FName TargetNodeID) const
 {
 	if (!TargetDialogue)
 	{
@@ -434,15 +441,20 @@ bool ADialogueController::WasNodeVisited(const UDialogue* TargetDialogue,
 
 	FName TargetDialogueName = TargetDialogue->GetFName();
 
-	if (!DialogueRecords.Records.Contains(TargetDialogueName))
+	if (!DialogueHistories.Histories.Contains(TargetDialogueName))
 	{
 		return false;
 	}
 
-	FDialogueNodeVisits TargetRecord =
-		DialogueRecords.Records[TargetDialogueName];
+	const auto& SpeakersIds = GetSpeakerIds(TargetDialogue);
+	for (const auto& SpeakerId : SpeakersIds)
+	{
+		auto CharacterDialogueHistory = DialogueHistories.Histories[TargetDialogueName].DialogueNodeHistory.Find(SpeakerId);
+		if (CharacterDialogueHistory && CharacterDialogueHistory->VisitedNodeIDs.Contains(TargetNodeID))
+			return true;
+	}
 
-	return TargetRecord.VisitedNodeIDs.Contains(TargetNodeID);
+	return false;
 }
 
 void ADialogueController::SetResumeNode(UDialogue* InDialogue, FName InNodeID)
@@ -454,13 +466,30 @@ void ADialogueController::SetResumeNode(UDialogue* InDialogue, FName InNodeID)
 
 	//Ensure there is a record
 	FName RecordName = InDialogue->GetFName();
-	if (!DialogueRecords.Records.Contains(RecordName))
+	if (!DialogueHistories.Histories.Contains(RecordName))
 	{
-		DialogueRecords.Records.Add(RecordName);
+		DialogueHistories.Histories.Add(RecordName);
 	}
 
-	//Set the record's resume node 
-	DialogueRecords.Records[RecordName].ResumeNodeID = InNodeID;
+	//Set the record's resume node
+	auto SpeakerIds = GetSpeakerIds(InDialogue);
+	for (const auto& SpeakerId : SpeakerIds)
+	{
+		auto& CharacterHistory = DialogueHistories.Histories[RecordName].DialogueNodeHistory.FindOrAdd(SpeakerId);
+		CharacterHistory.ResumeNodeID = InNodeID;
+	}
+}
+
+TArray<FGuid> ADialogueController::GetSpeakerIds(const UDialogue* Dialogue) const
+{
+	const auto& Speakers = Dialogue->GetAllSpeakers();
+	TArray<FGuid> SpeakerIds;
+	SpeakerIds.Reserve(Speakers.Num());
+	for (const auto& Speaker : Speakers)
+		if (!Speaker.Value->IsPlayer())
+			SpeakerIds.Add(Speaker.Value->GetDialogueSpeakerId());
+
+	return SpeakerIds;
 }
 
 void ADialogueController::OpenDisplay_Implementation()

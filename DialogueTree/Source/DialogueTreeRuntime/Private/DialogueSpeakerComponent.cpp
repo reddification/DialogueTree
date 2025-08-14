@@ -34,6 +34,10 @@ void UDialogueSpeakerComponent::BeginPlay()
 		);
 		return;
 	}
+
+	// G2VS2:
+	if (!DialogueSpeakerId.IsValid())
+		DialogueSpeakerId = FGuid::NewGuid();
 }
 
 void UDialogueSpeakerComponent::SetDisplayName(FText InDisplayName)
