@@ -529,6 +529,9 @@ void ADialogueController::FDialogueJumpBack::Set(UDialogue* InDialogue, FName In
 
 FName ADialogueController::FDialogueJumpBack::Get(UDialogue* InDialogue)
 {
+	if (Dialogue.IsNull())
+		return NAME_None;
+	
 	FName Result = ensure(InDialogue == Dialogue) ? NodeId : NAME_None;
 	Dialogue.Reset();
 	NodeId = NAME_None;
