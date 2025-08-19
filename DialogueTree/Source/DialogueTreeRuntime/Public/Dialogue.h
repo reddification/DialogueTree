@@ -7,7 +7,6 @@
 #include "UObject/NoExportTypes.h"
 //Plugin
 #include "DialogueNodeSocket.h"
-#include "Events/DialogueEvent_SetJumpBack.h"
 #include "Nodes/DialogueSpeechNode.h"
 //Generated
 #include "Dialogue.generated.h"
