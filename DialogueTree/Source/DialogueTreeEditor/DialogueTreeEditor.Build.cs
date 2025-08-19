@@ -53,7 +53,8 @@ public class DialogueTreeEditor : ModuleRules
 				"ApplicationCore",
 				"ToolMenus",
 				"GameplayTags",
-				"Projects"
+				"Projects",
+				"DeveloperSettings",
 			}
 			);
 		

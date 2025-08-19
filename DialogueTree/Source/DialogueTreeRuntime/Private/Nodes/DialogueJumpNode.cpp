@@ -15,8 +15,7 @@ FDialogueOption UDialogueJumpNode::GetAsOption()
 {
 	if (JumpTarget)
 	{
-		FSpeechDetails OptionDetails = 
-			JumpTarget->GetAsOption().Details;
+		FSpeechDetails OptionDetails = JumpTarget->GetAsOption().Details;
 		return FDialogueOption{ OptionDetails, this };
 	}
 

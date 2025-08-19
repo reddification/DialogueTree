@@ -65,8 +65,7 @@ void UNodeVisitedQuery::PostDuplicate(bool bDuplicateForPIE)
 
 	check(GetDialogue());
 
-	UDialogueNodeSocket* CopiedSocket = 
-		DuplicateObject(TargetNode, GetDialogue());
+	UDialogueNodeSocket* CopiedSocket = DuplicateObject(TargetNode, GetDialogue());
 	TargetNode = CopiedSocket;
 }
 

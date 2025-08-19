@@ -19,8 +19,10 @@
 #include "Graph/Nodes/GraphNodeDialogueEntry.h"
 #include "Graph/Nodes/GraphNodeDialogueEvent.h"
 #include "Graph/Nodes/GraphNodeDialogueJump.h"
+#include "Graph/Nodes/GraphNodeDialogueJumpBack.h"
 #include "Graph/Nodes/GraphNodeDialogueOptionLock.h"
 #include "Graph/Nodes/GraphNodeDialogueReroute.h"
+#include "Graph/Nodes/GraphNodeDialogueSetJumpBack.h"
 #include "Graph/Nodes/GraphNodeDialogueSpeech.h"
 #include "Transitions/DialogueTransition.h"
 
@@ -180,6 +182,8 @@ void UDialogueEdGraphSchema::GetGraphContextActions(
 	GetConditionalNodeMenuActions(ContextMenuBuilder);
 	GetEventNodeMenuActions(ContextMenuBuilder);
 	GetJumpNodeMenuActions(ContextMenuBuilder);
+	GetJumpBackNodeMenuActions(ContextMenuBuilder);
+	GetSetJumpBackNodeMenuActions(ContextMenuBuilder);
 	GetOptionLockNodeMenuActions(ContextMenuBuilder);
 }
 
@@ -587,34 +591,48 @@ void UDialogueEdGraphSchema::GetEventNodeMenuActions(
 	ContextMenuBuilder.AddAction(NewAction);
 }
 
-void UDialogueEdGraphSchema::GetJumpNodeMenuActions(
-	FGraphContextMenuBuilder& ContextMenuBuilder) const
+void UDialogueEdGraphSchema::GetJumpNodeMenuActions(FGraphContextMenuBuilder& ContextMenuBuilder) const
 {
 	//Category
-	FText MenuCategory = LOCTEXT("JumpNodeMenuCategory",
-		"Jump");
+	FText MenuCategory = LOCTEXT("JumpNodeMenuCategory", "Jump");
 
 	//Add event node 
-	UGraphNodeDialogueJump* TemplateJump =
-		UGraphNodeDialogueJump::MakeTemplate(
-			ContextMenuBuilder.OwnerOfTemporaries
-		);
+	UGraphNodeDialogueJump* TemplateJump = UGraphNodeDialogueJump::MakeTemplate(ContextMenuBuilder.OwnerOfTemporaries);
 
-	FText MenuText = LOCTEXT(
-		"JumpNodeCreationText",
-		"Jump"
-	);
-	FText MenuTooltip = LOCTEXT(
-		"JumpNodeCreationTooltip",
-		"Creates a node which jumps control to a specified other node."
-	);
+	FText MenuText = LOCTEXT("JumpNodeCreationText", "Jump");
+	FText MenuTooltip = LOCTEXT("JumpNodeCreationTooltip", "Creates a node which jumps control to a specified other node.");
 
-	TSharedPtr<FNewDialogueNodeAction> NewAction(new FNewDialogueNodeAction(
-		MenuCategory,
-		MenuText,
-		MenuTooltip,
-		TemplateJump
-	));
+	TSharedPtr<FNewDialogueNodeAction> NewAction(new FNewDialogueNodeAction(MenuCategory, MenuText, MenuTooltip, TemplateJump));
+	ContextMenuBuilder.AddAction(NewAction);
+}
+
+void UDialogueEdGraphSchema::GetJumpBackNodeMenuActions(FGraphContextMenuBuilder& ContextMenuBuilder) const
+{
+	//Category
+	FText MenuCategory = LOCTEXT("JumpNodeMenuCategory", "Jump");
+
+	//Add event node 
+	UGraphNodeDialogueJumpBack* TemplateJump = UGraphNodeDialogueJumpBack::MakeTemplate(ContextMenuBuilder.OwnerOfTemporaries);
+
+	FText MenuText = LOCTEXT("JumpNodeCreationText","Jump back");
+	FText MenuTooltip = LOCTEXT("JumpNodeCreationTooltip", "Creates a node which jumps control back to a checkpoint phase.");
+
+	TSharedPtr<FNewDialogueNodeAction> NewAction(new FNewDialogueNodeAction(MenuCategory,MenuText,MenuTooltip, TemplateJump));
+	ContextMenuBuilder.AddAction(NewAction);
+}
+
+void UDialogueEdGraphSchema::GetSetJumpBackNodeMenuActions(FGraphContextMenuBuilder& ContextMenuBuilder) const
+{
+	//Category
+	FText MenuCategory = LOCTEXT("JumpNodeMenuCategory", "Jump");
+
+	//Add event node 
+	UGraphNodeDialogueSetJumpBack* TemplateJump = UGraphNodeDialogueSetJumpBack::MakeTemplate(ContextMenuBuilder.OwnerOfTemporaries);
+
+	FText MenuText = LOCTEXT("JumpNodeCreationText","Set jump back");
+	FText MenuTooltip = LOCTEXT("JumpNodeCreationTooltip", "Creates a node which makes a checkpoint for jump back node.");
+
+	TSharedPtr<FNewDialogueNodeAction> NewAction(new FNewDialogueNodeAction(MenuCategory,MenuText,MenuTooltip, TemplateJump));
 	ContextMenuBuilder.AddAction(NewAction);
 }
 

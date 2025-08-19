@@ -267,6 +267,9 @@ private:
 	void GetJumpNodeMenuActions(FGraphContextMenuBuilder& ContextMenuBuilder) 
 		const;
 
+	void GetJumpBackNodeMenuActions(FGraphContextMenuBuilder& ContextMenuBuilder) const;
+	void GetSetJumpBackNodeMenuActions(FGraphContextMenuBuilder& ContextMenuBuilder) const;
+
 	/**
 	* Sets up context menu for option lock node creation.
 	*

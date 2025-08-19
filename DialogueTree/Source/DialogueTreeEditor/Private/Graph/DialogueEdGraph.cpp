@@ -14,16 +14,20 @@
 #include "Graph/Nodes/GraphNodeDialogueEntry.h"
 #include "Graph/Nodes/GraphNodeDialogueEvent.h"
 #include "Graph/Nodes/GraphNodeDialogueJump.h"
+#include "Graph/Nodes/GraphNodeDialogueJumpBack.h"
 #include "Graph/Nodes/GraphNodeDialogueOptionLock.h"
 #include "Graph/Nodes/GraphNodeDialogueReroute.h"
+#include "Graph/Nodes/GraphNodeDialogueSetJumpBack.h"
 #include "Graph/Nodes/GraphNodeDialogueSpeech.h"
 #include "Nodes/DialogueNode.h"
 #include "Nodes/DialogueBranchNode.h"
 #include "Nodes/DialogueEntryNode.h"
 #include "Nodes/DialogueEventNode.h"
+#include "Nodes/DialogueJumpBackNode.h"
 #include "Nodes/DialogueJumpNode.h"
 #include "Nodes/DialogueOptionLockNode.h"
 #include "Nodes/DialogueRerouteNode.h"
+#include "Nodes/DialogueSetJumpBackNode.h"
 #include "Nodes/DialogueSpeechNode.h"
 
 UDialogueEdGraph::UDialogueEdGraph()
@@ -293,6 +297,12 @@ UGraphNodeDialogue* UDialogueEdGraph::CreateGraphNodeFromAssetNode(
 		NewNode = NewObject<UGraphNodeDialogueJump>(this);
 	}
 
+	if (UDialogueJumpBackNode* JumpBackNode = Cast<UDialogueJumpBackNode>(AssetNode))
+		NewNode = NewObject<UGraphNodeDialogueJumpBack>(this);
+
+	if (UDialogueSetJumpBackNode* SetJumpBackNode = Cast<UDialogueSetJumpBackNode>(AssetNode))
+		NewNode = NewObject<UGraphNodeDialogueSetJumpBack>(this);
+	
 	if (UDialogueOptionLockNode* OptionLockNode =
 		Cast<UDialogueOptionLockNode>(AssetNode))
 	{

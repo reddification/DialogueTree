@@ -277,6 +277,8 @@ void ADialogueController::EndDialogue()
 		CurrentDialogue->ClearController();
 		CurrentDialogue = nullptr;
 	}
+
+	ActiveJumpBack.Clear();
 }
 
 void ADialogueController::Skip() const
@@ -516,4 +518,35 @@ bool ADialogueController::CanOpenDisplay_Implementation() const
 
 void ADialogueController::HandleMissingSpeaker_Implementation(const FName& MissingName)
 {
+}
+
+// G2VS2:
+void ADialogueController::FDialogueJumpBack::Set(UDialogue* InDialogue, FName InNodeId)
+{
+	Dialogue = InDialogue;
+	NodeId = InNodeId;
+}
+
+FName ADialogueController::FDialogueJumpBack::Get(UDialogue* InDialogue)
+{
+	FName Result = ensure(InDialogue == Dialogue) ? NodeId : NAME_None;
+	Dialogue.Reset();
+	NodeId = NAME_None;
+	return Result;
+}
+
+void ADialogueController::FDialogueJumpBack::Clear()
+{
+	Dialogue.Reset();
+	NodeId = NAME_None;
+}
+
+void ADialogueController::SetJumpBackNode(UDialogue* Dialogue, FName NodeId)
+{
+	ActiveJumpBack.Set(Dialogue, NodeId);
+}
+
+FName ADialogueController::GetJumpBackNode(UDialogue* Dialogue)
+{
+	return ActiveJumpBack.Get(Dialogue);
 }

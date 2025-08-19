@@ -37,8 +37,7 @@ public:
 
 public:
 	/** UObject Implementation */
-	virtual void PostEditChangeProperty(
-		struct FPropertyChangedEvent& PropertyChangedEvent) override;
+	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
 	/** End UObject*/
 
 	/** UEdGraphNode Implementation */
@@ -72,7 +71,7 @@ public:
 	int GetNumEvents() const;
 
 private:
-	void FinalizeNodeSocket(UDialogueEventBase* InEvent);
+	void FinalizeEventNodeSocket(UDialogueEventBase* InEvent);
 	void OnRegenerateNodeSocket(UDialogueEventBase* InEvent);
 
 private:

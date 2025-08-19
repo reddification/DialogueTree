@@ -70,6 +70,19 @@ class DIALOGUETREERUNTIME_API ADialogueController : public AActor
 {
 	GENERATED_BODY()
 
+private:
+	struct FDialogueJumpBack
+	{
+		public:
+			void Set(UDialogue* InDialogue, FName InNodeId);
+			FName Get(UDialogue* InDialogue);
+			void Clear();
+		
+		private:
+			TSoftObjectPtr<UDialogue> Dialogue;
+			FName NodeId;
+	};
+	
 public:
 	/** Constructor */
 	ADialogueController();
@@ -341,4 +354,11 @@ public:
 private:
 	// deliberately does not include player because player could have participate in the same dialogue D with NPC A but not with NPC B 
 	TArray<FGuid> GetSpeakerIds(const UDialogue* Dialogue) const;
+
+public:
+	void SetJumpBackNode(UDialogue* Dialogue, FName NodeId);
+	FName GetJumpBackNode(UDialogue* Dialogue);
+
+private:
+	FDialogueJumpBack ActiveJumpBack;
 };

@@ -508,3 +508,21 @@ void UDialogue::FillSpeakers(TMap<FName, UDialogueSpeakerComponent*> InSpeakers)
 		}
 	}
 }
+
+void UDialogue::SetJumpBackNode(UDialogueNode* DialogueNode)
+{
+	if (DialogueNode && DialogueNodes.Contains(DialogueNode->GetNodeID()) && DialogueController)
+	{
+		DialogueController->SetJumpBackNode(this, DialogueNode->GetNodeID());
+	}
+}
+
+bool UDialogue::JumpBack()
+{
+	FName JumpBackNodeId = DialogueController->GetJumpBackNode(this);
+	if (JumpBackNodeId.IsNone())
+		return false;
+	
+	TraverseNode(DialogueNodes[JumpBackNodeId]);
+	return true;
+}

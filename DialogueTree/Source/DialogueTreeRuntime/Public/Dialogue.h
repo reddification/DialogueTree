@@ -6,6 +6,8 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 //Plugin
+#include "DialogueNodeSocket.h"
+#include "Events/DialogueEvent_SetJumpBack.h"
 #include "Nodes/DialogueSpeechNode.h"
 //Generated
 #include "Dialogue.generated.h"
@@ -478,4 +480,9 @@ private:
 public:
 	/** Delegate called when speaker roles changed */
 	FSpeakerRolesChangedSignature OnSpeakerRolesChanged;
+
+	//g2vs2
+public:
+	void SetJumpBackNode(UDialogueNode* DialogueNode);
+	bool JumpBack();
 };

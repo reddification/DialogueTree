@@ -3,23 +3,19 @@
 //Header
 #include "Graph/DialogueTreeConnectionDrawingPolicy.h"
 //Plugin
+#include "DialogueTreeGraphSettings.h"
 #include "DialogueTreeStyle.h"
 
-FDialogueTreeConnectionDrawingPolicy::FDialogueTreeConnectionDrawingPolicy(
-	int32 InBackLayerID, int32 InFrontLayerID, float InZoomFactor, 
+FDialogueTreeConnectionDrawingPolicy::FDialogueTreeConnectionDrawingPolicy(int32 InBackLayerID, int32 InFrontLayerID, float InZoomFactor, 
 	const FSlateRect& InClippingRect, FSlateWindowElementList& InDrawElements)
-	: FConnectionDrawingPolicy(
-		InBackLayerID, 
-		InFrontLayerID, 
-		InZoomFactor, 
-		InClippingRect, 
-		InDrawElements
-	)
+	: FConnectionDrawingPolicy(InBackLayerID, InFrontLayerID, InZoomFactor, InClippingRect, InDrawElements)
 {
 	//Get the radius of a standard pin
 	PinRadius = 
 		FDialogueTreeStyle::GetVector(TEXT("PinSize")).Y / 2.f;
 
+	auto GraphRenderSettings = GetDefault<UDialogueTreeGraphSettings>();
+	
 	//Flip direction of relevant spline settings for vertical flow 
 	SplineSettings.FwdDeltaRangeX = 
 		Settings->ForwardSplineVerticalDeltaRange;
@@ -44,6 +40,15 @@ FDialogueTreeConnectionDrawingPolicy::FDialogueTreeConnectionDrawingPolicy(
 
 	SplineSettings.BwdTanScaleY = 
 		Settings->BackwardSplineTangentFromHorizontalDelta.X;
+
+	SplineSettings.FwdDeltaRangeX = GraphRenderSettings->ForwardSplineVerticalDeltaRange;
+	SplineSettings.BwdDeltaRangeX = GraphRenderSettings->BackwardSplineVerticalDeltaRange;
+	SplineSettings.FwdDeltaRangeY = GraphRenderSettings->ForwardSplineHorizontalDeltaRange;
+	SplineSettings.BwdDeltaRangeY = GraphRenderSettings->BackwardSplineHorizontalDeltaRange;
+	SplineSettings.FwdTanScaleX = GraphRenderSettings->ForwardSplineTangentFromVerticalDelta.Y;
+	SplineSettings.FwdTanScaleY = GraphRenderSettings->ForwardSplineTangentFromHorizontalDelta.X;
+	SplineSettings.BwdTanScaleX = GraphRenderSettings->BackwardSplineTangentFromVerticalDelta.Y;
+	SplineSettings.BwdTanScaleY = GraphRenderSettings->BackwardSplineTangentFromHorizontalDelta.X;
 }
 
 void FDialogueTreeConnectionDrawingPolicy::DrawPreviewConnector(

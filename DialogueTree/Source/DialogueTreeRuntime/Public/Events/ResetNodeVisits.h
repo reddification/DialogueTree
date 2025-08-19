@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Events/DialogueEventBase.h"
+#include "Interfaces/DialogueNodeReferencerInterface.h"
 #include "ResetNodeVisits.generated.h"
 
 class UDialogueNodeSocket;
@@ -13,7 +14,7 @@ class UDialogueNodeSocket;
  * that the user can select from the dialogue editor.
  */
 UCLASS()
-class DIALOGUETREERUNTIME_API UResetNodeVisits : public UDialogueEventBase
+class DIALOGUETREERUNTIME_API UResetNodeVisits : public UDialogueEventBase, public IDialogueNodeReferencerInterface
 {
 	GENERATED_BODY()
 	
@@ -36,4 +37,7 @@ private:
 	/** Node to reset */
 	UPROPERTY(EditAnywhere, Category = "Dialogue")
 	TObjectPtr<UDialogueNodeSocket> TargetNode;
+
+public:
+	virtual TArray<UDialogueNodeSocket*> GetReferencedNodesSockets() const override;
 };

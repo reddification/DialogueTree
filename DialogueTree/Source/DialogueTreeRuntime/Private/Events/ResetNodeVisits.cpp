@@ -47,4 +47,9 @@ UDialogueNodeSocket* UResetNodeVisits::GetTargetSocket() const
 	return TargetNode;
 }
 
+TArray<UDialogueNodeSocket*> UResetNodeVisits::GetReferencedNodesSockets() const
+{
+	return { TargetNode };
+}
+
 #undef LOCTEXT_NAMESPACE
